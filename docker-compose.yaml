@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  orgs:
+    build: ./
+    network_mode: host
+    restart: always
