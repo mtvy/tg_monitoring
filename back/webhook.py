@@ -4,7 +4,7 @@ import cherrypy
 from stun          import get_ip_info
 from telebot       import TeleBot
 from telebot.types import Update
-from setup.utility import logging
+from back.utility  import logging
 #\------------------------------------------------------------------/#
 
 TOKEN = ...
@@ -32,7 +32,7 @@ WEBHOOK_CONFIG = {
 
 WEBHOOK_SET = {
     'url'         : WEBHOOK_URL_BASE + WEBHOOK_URL_PATH, 
-    'certificate' : open(WEBHOOK_SSL_CERT, 'r')
+    'certificate' : ... #open(WEBHOOK_SSL_CERT, 'r')
 }
 
 
@@ -65,11 +65,13 @@ class WebhookServer(object):
 
 #\------------------------------------------------------------------/#
 @logging()
-def proc_bot(bot : TeleBot) -> None:
+def proc_bot(bot : TeleBot) -> bool:
 
     bot.remove_webhook(); bot.set_webhook(**WEBHOOK_SET)
 
     cherrypy.config.update(WEBHOOK_CONFIG)
 
     cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
+
+    return True
 #\------------------------------------------------------------------/#

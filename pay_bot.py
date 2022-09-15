@@ -10,11 +10,12 @@
 from telebot         import TeleBot
 from telebot.types   import Message
 #--------------------------\ project files /-------------------------#
-from setup.webhook import proc_bot        
-from setup.utility import logging
+from back.webhook  import proc_bot        
+from back.utility  import logging
+from back.database import *
 #\------------------------------------------------------------------/#
 
-TOKEN = ...
+TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
 
 #\------------------------------------------------------------------/#
 bot = TeleBot(TOKEN)
@@ -25,8 +26,8 @@ bot = TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 @logging()
 def start(msg : Message) -> None:
-
-    _id : int = msg.chat.id
+    """### Bot begin actions """
+    _id : int = msg.chat.id    
     ...
 #\------------------------------------------------------------------/#
 
@@ -48,5 +49,6 @@ def input_keyboard(msg : Message) -> None:
 
 #\==================================================================/#
 if __name__ == "__main__":
-    proc_bot(bot)
+    if not proc_bot(bot):
+        bot.polling(none_stop=True)
 #\==================================================================/#

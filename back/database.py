@@ -13,7 +13,7 @@ from json         import dump as _dump, load as _load
 from psycopg2     import connect as connect_db
 from progress.bar import IncrementalBar as _Bar
 
-from setup.utility import logging
+from back.utility import logging
 #\------------------------------------------------------------------/#
 
 
