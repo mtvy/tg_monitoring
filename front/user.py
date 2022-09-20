@@ -1,3 +1,4 @@
+from datetime import datetime
 from telebot       import TeleBot
 from telebot.types import ReplyKeyboardRemove as rmvKey
 
@@ -26,7 +27,9 @@ def init_user(bot : TeleBot, _id : str) -> None:
 
     bot.send_message(_id, txt, reply_markup=rmvKey())
     
-    if not __is_exist(_id):
-        insert_db(...)
+    #now = datetime.now()
+    #date = f'{now.year}-{now.month}-{now.day}'
+    #insert_db('INSERT INTO users_tb...')
+    #insert_db('INSERT INTO accs_tb...')
     
     bot.send_message(_id, '', reply_markup=set_keyboard(USER_KB))
