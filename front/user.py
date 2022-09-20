@@ -8,9 +8,9 @@ from front.utility import set_keyboard
 
 
 @logging()
-def __is_exist(_id : int) -> bool:
+def __is_exist(_id : str) -> bool:
     for it in get_db('ids_tb'):
-        if int(it[1]) == _id:
+        if it[1] == _id:
             return True
     return False
 
@@ -19,7 +19,7 @@ USER_KB = ['']
 
 
 @logging()
-def init_user(bot : TeleBot, _id : int) -> None:
+def init_user(bot : TeleBot, _id : str) -> None:
     txt = ('Вы вошли в аккаунт пользователя. '
            'Идёт получение документов. '
            'Подождите окончания загрузки.')

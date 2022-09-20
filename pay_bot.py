@@ -24,18 +24,18 @@ TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
 bot = TeleBot(TOKEN)
 #\------------------------------------------------------------------/#
 
-admin_ID  = {281321076  : None}
-users_IDS = {5472647497 : None}
+ADMINS_ID = {'281321076'  : None}
+USERS_IDS = {'5472647497' : None}
 
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
 @logging()
 def start(msg : Message) -> None:
     """### Bot begin actions """
-    _id : int = msg.chat.id    
-    if _id in users_IDS.keys():
+    _id = str(msg.chat.id)
+    if _id in USERS_IDS.keys():
         init_user(bot, _id)
-    elif _id in admin_ID.keys():
+    elif _id in ADMINS_ID.keys():
         init_admin(bot, _id)
 #\------------------------------------------------------------------/#
 
@@ -46,12 +46,23 @@ def start(msg : Message) -> None:
 def input_keyboard(msg : Message) -> None:
 
     KEYBOARD_FUNC = {...}
+    ADMIN_FUNC = {
+        'Уведомить'       : ...,
+        'Добавить админа' : ..., 
+        'Посмотреть LTV'  : ...
+    }
 
-    _id : int = msg.chat.id
+    _id = str(msg.chat.id)
     txt : str = msg.text
 
     if txt in KEYBOARD_FUNC:
-        ...  
+        ...
+    elif txt in ADMIN_FUNC:
+        if _id in ADMINS_ID.keys():
+            ADMIN_FUNC[txt](bot, _id)
+        else:
+            bot.send_message(_id, 'Нет прав администратора.', 
+                reply_markup=rmvKey())
 #\------------------------------------------------------------------/#
 
 
