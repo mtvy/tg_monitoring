@@ -25,8 +25,8 @@ TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
 bot = TeleBot(TOKEN)
 #\------------------------------------------------------------------/#
 
-admins_IDS = {'281321076'  : None} #get_ids('admins_tb')
-users_IDS = {}  #get_ids('users_tb')
+admins_IDS = get_ids('admins_tb')
+users_IDS = get_ids('users_tb')
 
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
@@ -48,10 +48,13 @@ def start(msg : Message) -> None:
 def input_keyboard(msg : Message) -> None:
 
     KEYBOARD_FUNC = {...}
+
     ADMIN_FUNC = {
-        'Уведомить'       : ...,
+        'Уведомить'       : ask_accounts,
         'Добавить админа' : add_admin, 
-        'Посмотреть LTV'  : get_session_info
+        'Посмотреть LTV'  : get_session_info,
+        'Админы'          : ...,
+        'Пользователи'    : ...
     }
 
     _id = str(msg.chat.id)
@@ -63,8 +66,8 @@ def input_keyboard(msg : Message) -> None:
         if _id in admins_IDS.keys():
             ADMIN_FUNC[txt](bot, _id)
         else:
-            bot.send_message(_id, 'Нет прав администратора.', 
-                reply_markup=rmvKey())
+            txt = 'Нет прав администратора.'
+            bot.send_message(_id, txt, reply_markup=rmvKey())
     
     admins_IDS = get_ids('admins_tb')
     users_IDS = get_ids('users_tb')

@@ -1,4 +1,5 @@
 from datetime      import datetime
+from typing        import Any, Dict, Literal
 from telebot       import TeleBot
 from telebot.types import ReplyKeyboardRemove as rmvKey
 
@@ -58,3 +59,21 @@ def get_session_info(bot : TeleBot, _id : str) -> None:
 
     txt = 'Статистика получена!'
     bot.send_message(_id, txt, reply_markup=set_keyboard(ADMIN_KB))
+
+
+@logging()
+def ask_accounts(bot : TeleBot, _id : str) -> None:
+    txt = 'Кому сделать уведомление?'
+    bot.send_message(_id, txt, reply_markup=set_keyboard(['Админы', 'Пользователи']))
+
+
+def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
+
+    def __send_info(bot: TeleBot, _id : str, accs : Dict[str, Any], txt : str) -> None:
+        for acc in accs.keys():
+            bot.send_message(_id, txt)
+
+    txt = 'Введите сообщение для рассылки'
+    msg = bot.send_message(_id, txt, reply_markup=rmvKey())
+    bot.register_next_step_handler(msg, )
+    
