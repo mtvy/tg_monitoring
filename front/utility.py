@@ -1,6 +1,9 @@
 
-from typing        import List, Tuple
+from typing        import Dict, List, Tuple
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+
+from back.database import get_db
+from back.utility import logging
 
 def set_keyboard(btns : List[str]) -> ReplyKeyboardMarkup:
     """
@@ -23,3 +26,11 @@ def set_keyboard(btns : List[str]) -> ReplyKeyboardMarkup:
     key.add(*__gen_btns(btns))
 
     return key
+
+
+@logging()
+def get_ids(tb : str) -> Dict[str, None]:
+    ids = {}
+    for it in get_db(tb):
+        ids += {it[1] : None}
+    return ids

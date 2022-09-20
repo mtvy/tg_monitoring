@@ -16,6 +16,7 @@ from back.database import *
 
 from front.admin import *
 from front.user  import *
+from front.utility import get_ids
 #\------------------------------------------------------------------/#
 
 TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
@@ -24,8 +25,8 @@ TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
 bot = TeleBot(TOKEN)
 #\------------------------------------------------------------------/#
 
-ADMINS_ID = {'281321076'  : None}
-USERS_IDS = {'5472647497' : None}
+admins_IDS = {'281321076'  : None} #get_ids('admins_tb')
+users_IDS = {'5472647497' : None}  #get_ids('users_tb')
 
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
@@ -33,9 +34,9 @@ USERS_IDS = {'5472647497' : None}
 def start(msg : Message) -> None:
     """### Bot begin actions """
     _id = str(msg.chat.id)
-    if _id in USERS_IDS.keys():
+    if _id in users_IDS.keys():
         init_user(bot, _id)
-    elif _id in ADMINS_ID.keys():
+    elif _id in admins_IDS.keys():
         init_admin(bot, _id)
 #\------------------------------------------------------------------/#
 
@@ -48,8 +49,8 @@ def input_keyboard(msg : Message) -> None:
     KEYBOARD_FUNC = {...}
     ADMIN_FUNC = {
         'Уведомить'       : ...,
-        'Добавить админа' : ..., 
-        'Посмотреть LTV'  : ...
+        'Добавить админа' : add_admin, 
+        'Посмотреть LTV'  : get_session_info
     }
 
     _id = str(msg.chat.id)
@@ -58,11 +59,14 @@ def input_keyboard(msg : Message) -> None:
     if txt in KEYBOARD_FUNC:
         ...
     elif txt in ADMIN_FUNC:
-        if _id in ADMINS_ID.keys():
+        if _id in admins_IDS.keys():
             ADMIN_FUNC[txt](bot, _id)
         else:
             bot.send_message(_id, 'Нет прав администратора.', 
                 reply_markup=rmvKey())
+    
+    admins_IDS = get_ids('admins_tb')
+    users_IDS = get_ids('users_tb')
 #\------------------------------------------------------------------/#
 
 
