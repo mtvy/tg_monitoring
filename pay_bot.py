@@ -26,7 +26,7 @@ bot = TeleBot(TOKEN)
 #\------------------------------------------------------------------/#
 
 admins_IDS = {'281321076'  : None} #get_ids('admins_tb')
-users_IDS = {'5472647497' : None}  #get_ids('users_tb')
+users_IDS = {}  #get_ids('users_tb')
 
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
@@ -34,10 +34,11 @@ users_IDS = {'5472647497' : None}  #get_ids('users_tb')
 def start(msg : Message) -> None:
     """### Bot begin actions """
     _id = str(msg.chat.id)
-    if _id in users_IDS.keys():
-        init_user(bot, _id)
-    elif _id in admins_IDS.keys():
+    if _id in admins_IDS.keys():
         init_admin(bot, _id)
+    elif _id not in users_IDS.keys():
+        init_user(bot, _id)
+        users_IDS = get_ids('users_tb')
 #\------------------------------------------------------------------/#
 
 
