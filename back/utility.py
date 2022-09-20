@@ -13,6 +13,8 @@ from os.path       import exists     as _is_exist
 from traceback     import format_exc as _exc
 from datetime      import datetime   as dt
 from typing        import Callable, Literal, Any
+from json          import dump       as dump_json, \
+                          load       as load_json
 #\------------------------------------------------------------------/#
 
 
@@ -58,6 +60,18 @@ def openfileforRead(file = None, txt = '') -> str:
 def rmvFile(pth : str) -> bool:
     if _is_exist(pth): _rmv(pth); return True
     return False
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+def dumpData(data : Any, _f : str, _md = 'w') -> None:
+    dump_json(data, open(_f, _md))
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+def loadData(_f : str) -> Any:
+    return load_json(open(_f))
 #\------------------------------------------------------------------/#
 
 

@@ -25,8 +25,8 @@ TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'
 bot = TeleBot(TOKEN)
 #\------------------------------------------------------------------/#
 
-admins_IDS = get_ids('admins_tb')
-users_IDS = get_ids('users_tb')
+admins_IDS : Dict[str, Any] = get_ids('admins_tb')
+users_IDS : Dict[str, Any] = get_ids('users_tb')
 
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
@@ -47,7 +47,19 @@ def start(msg : Message) -> None:
 @logging()
 def input_keyboard(msg : Message) -> None:
 
-    KEYBOARD_FUNC = {...}
+    @logging()
+    def _proc_call(ids : Dict[str, Any]) -> bool:
+        if _id in ids.keys():
+            USER_FUNC[txt](bot, _id)
+        else:
+            txt = 'Нет доступа. Перезапустите бота /start'
+            bot.send_message(_id, txt, reply_markup=rmvKey())
+
+        ...
+        ...
+        ...
+        ...
+
 
     ADMIN_FUNC = {
         'Уведомить'       : ask_accounts,
@@ -57,20 +69,40 @@ def input_keyboard(msg : Message) -> None:
         'Пользователи'    : ...
     }
 
+    USER_FUNC = {
+        'Мониторинг'     : ...,
+        'Соглашение'     : ...,
+        'Тех. Поддержка' : ...,
+        'Профиль'        : ...,
+        'Рефералка'      : ...
+    }
+
+    ACC_STATUS = {
+        'Админ'        : 'admins_tb',
+        'Пользователи' : 'users_tb'
+    }
+
     _id = str(msg.chat.id)
     txt : str = msg.text
 
-    if txt in KEYBOARD_FUNC:
-        ...
+    if txt in USER_FUNC:
+        if _id in users_IDS:
+            USER_FUNC[txt](bot, _id)
+        else:
+            txt = 'Нет доступа. Перезапустите бота /start'
+            bot.send_message(_id, txt, reply_markup=rmvKey())
+
     elif txt in ADMIN_FUNC:
         if _id in admins_IDS.keys():
             ADMIN_FUNC[txt](bot, _id)
         else:
             txt = 'Нет прав администратора.'
             bot.send_message(_id, txt, reply_markup=rmvKey())
+
+    elif txt in ACC_STATUS.keys() and _id in admins_IDS.keys():
+        send_info(bot, _id, get_ids(ACC_STATUS[txt]))
     
-    admins_IDS = get_ids('admins_tb')
-    users_IDS = get_ids('users_tb')
+    admins_IDS, users_IDS = get_ids('admins_tb'), get_ids('users_tb')
 #\------------------------------------------------------------------/#
 
 

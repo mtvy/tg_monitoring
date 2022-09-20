@@ -1,7 +1,7 @@
 from datetime      import datetime
 from typing        import Any, Dict, Literal
 from telebot       import TeleBot
-from telebot.types import ReplyKeyboardRemove as rmvKey
+from telebot.types import Message, ReplyKeyboardRemove as rmvKey
 
 from back.database import get_db, insert_db
 from back.utility  import logging
@@ -66,14 +66,16 @@ def ask_accounts(bot : TeleBot, _id : str) -> None:
     txt = 'Кому сделать уведомление?'
     bot.send_message(_id, txt, reply_markup=set_keyboard(['Админы', 'Пользователи']))
 
-
+@logging()
 def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
-
-    def __send_info(bot: TeleBot, _id : str, accs : Dict[str, Any], txt : str) -> None:
+    
+    @logging()
+    def __send_info(msg : Message, bot: TeleBot, _id : str, accs : Dict[str, Any]) -> None:
         for acc in accs.keys():
-            bot.send_message(_id, txt)
+            bot.send_message(acc, msg.text)
+        bot.send_message(_id, f'Отправлено уведомлений: {len(accs)}')
 
     txt = 'Введите сообщение для рассылки'
     msg = bot.send_message(_id, txt, reply_markup=rmvKey())
-    bot.register_next_step_handler(msg, )
+    bot.register_next_step_handler(msg, __send_info, bot, _id, accs)
     
