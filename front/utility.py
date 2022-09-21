@@ -32,5 +32,5 @@ def set_keyboard(btns : List[str]) -> ReplyKeyboardMarkup:
 def get_ids(tb : str) -> Dict[str, None]:
     ids = {}
     for it in get_db(tb):
-        ids += {it[1] : None}
+        ids[it[1]] = None
     return ids

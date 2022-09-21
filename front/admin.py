@@ -11,7 +11,7 @@ from front.utility import set_keyboard
 
 @logging()
 def __is_exist(_id : str) -> bool:
-    for it in get_db('ids_tb'):
+    for it in get_db('accs_tb'):
         if it[1] == _id:
             return True
     return False
@@ -29,9 +29,9 @@ def init_admin(bot : TeleBot, _id : str) -> None:
     bot.send_message(_id, txt, reply_markup=rmvKey())
     
     if not __is_exist(_id):
-        insert_db(...)
+        insert_db(f"INSERT INTO accs_tb (tib) VALUE ('{_id}')")
     
-    bot.send_message(_id, '', reply_markup=set_keyboard(ADMIN_KB))
+    bot.send_message(_id, 'Загрузка закончена.', reply_markup=set_keyboard(ADMIN_KB))
 
 
 @logging()

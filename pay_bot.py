@@ -35,10 +35,10 @@ def start(msg : Message) -> None:
     """### Bot begin actions """
     _id = str(msg.chat.id)
 
-    if _id in admins_IDS.keys():
+    if _id in get_ids('admins_tb').keys():
         init_admin(bot, _id)
         
-    elif _id not in users_IDS.keys():
+    elif _id not in get_ids('users_tb').keys():
         init_user(bot, _id)
         users_IDS = get_ids('users_tb')
     
@@ -109,6 +109,6 @@ def input_keyboard(msg : Message) -> None:
 
 #\==================================================================/#
 if __name__ == "__main__":
-    if not proc_bot(bot):
-        bot.polling(none_stop=True)
+    #if not proc_bot(bot):
+    bot.polling(none_stop=True)
 #\==================================================================/#

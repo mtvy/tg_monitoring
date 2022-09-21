@@ -9,7 +9,7 @@ from back.utility  import logging
 
 TOKEN = ...
 
-WEBHOOK_HOST   = get_ip_info()[1]
+WEBHOOK_HOST   = ...#get_ip_info()[1]
 WEBHOOK_PORT   = 8443  
 WEBHOOK_LISTEN = '0.0.0.0'
 
