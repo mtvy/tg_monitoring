@@ -39,7 +39,7 @@ def start(msg : Message) -> None:
         init_admin(bot, _id)
         
     elif _id not in get_ids('users_tb').keys():
-        init_user(bot, _id)
+        init_user(msg, bot, _id)
         users_IDS = get_ids('users_tb')
     
     elif _id in users_IDS.keys():
