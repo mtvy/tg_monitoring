@@ -42,10 +42,11 @@ def is_ref(message:str, bot: TeleBot, _id: str):
 
 
 @logging()
-def get_refer(bot: TeleBot, _id: str) -> str:
-   bot.send_message(_id, f'Ваш реферал {_id}')
+def get_ref(bot: TeleBot, _id: str) -> None:
+   bot.send_message(_id, f'Ваш реферал: {_id}')
 
 @logging()
-def agreement(bot: TeleBot, _id: str) -> str:
-   bot.send_message(_id, 'Здесь будет ссылка на соглашение :)')
+def get_agrmnt(bot: TeleBot, _id: str) -> None:
+   """### Send agreement to user. """
+   bot.send_message(_id, 'Соглашение: https://...')
        
