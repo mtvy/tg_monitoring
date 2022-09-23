@@ -68,11 +68,12 @@ def input_keyboard(msg : Message) -> None:
 
     USER_FUNC = {
         #'Мониторинг'     : enter_monitoring,
-        'Соглашение'     : ...,
+        'Соглашение'     : agreement,
         'Тех. Поддержка' : ...,
         #'Профиль'        : show_prfl,
-        'Рефералка'      : ...,
-        #'Назад'          : start_user
+        'Рефералка'      : get_refer,
+        #'Назад'          : start_user,
+        'Подписка'        : check_sub
     }
 
     MON_FUNC = {
