@@ -12,8 +12,8 @@ from telebot.types import Message, ReplyKeyboardRemove  as rmvKb   , \
                                    InlineKeyboardMarkup as inlineKb, \
                                    InlineKeyboardButton as inlineBtn
 #------------------------\ project modules /-------------------------#
-from back  import insert_db, logging
-from front import get_date, get_ids, set_kb, wait_msg, send_msg
+from back          import insert_db, logging
+from front.utility import get_date, get_ids, set_kb, wait_msg, send_msg
 #\------------------------------------------------------------------/#
 
 
@@ -38,7 +38,7 @@ def init_user(bot : TeleBot, _id : str) -> None:
          'errVal' : [wait_msg, 'Пожалуйста, пришлите в формате 12345678 или нажмите /stop']
       }
 
-      txt : str = msg.text if txt in REF_FUNC.keys() \
+      txt : str = msg.text if msg.text in REF_FUNC.keys() \
                      else 'nmbr' if msg.text.isdigit() \
                         else 'errVal'
 
@@ -47,10 +47,11 @@ def init_user(bot : TeleBot, _id : str) -> None:
          '_id'  : _id, 
          'func' : is_ref, 
          'mrkp' : rmvKb() if REF_FUNC[txt][0] == wait_msg else set_kb(USER_KB), 
-         'txt'  : REF_FUNC[txt][2],
+         'txt'  : REF_FUNC[txt][1],
+         'args' : [bot, _id]
       }
 
-      REF_FUNC[txt][0](**__kwrgs, bot, _id)
+      REF_FUNC[txt][0](**__kwrgs)
 
 
    txt = ('Вы вошли в аккаунт пользователя.\n'
@@ -62,7 +63,7 @@ def init_user(bot : TeleBot, _id : str) -> None:
    insert_db(f"INSERT INTO users_tb (tid) VALUES ('{_id}')", 'users_tb')
    insert_db(f"INSERT INTO accs_tb (tid, reg_date, entr_date, buys) VALUES ('{_id}', '{date}', '{date}', '{{}}')", 'accs_tb')
 
-   wait_msg(bot, _id, is_ref, 'У вас есть рефералка?', set_kb(YN_KB), bot, _id)
+   wait_msg(bot, _id, is_ref, 'У вас есть рефералка?', set_kb(YN_KB), [bot, _id])
 #\------------------------------------------------------------------/#
 
 
@@ -143,5 +144,5 @@ def call_sup(bot : TeleBot, _id : str) -> None:
          __send_call_req(bot, _user_id, admin_id, txt)
       send_msg(bot, _user_id, 'Сообщение в тех. поддержку отправлено.', set_kb(USER_KB))
 
-   wait_msg(bot, _id, __proc_call_send, 'Ведите сообщение для тех. поддержки.', rmvKb(), bot, _id)
+   wait_msg(bot, _id, __proc_call_send, 'Ведите сообщение для тех. поддержки.', rmvKb(), [bot, _id])
 #\------------------------------------------------------------------/#

@@ -11,8 +11,9 @@ from typing        import Any, Dict
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 #------------------------\ project modules /-------------------------#
-from back  import get_db, insert_db, logging
-from front import get_date, set_kb, del_msg, send_msg, wait_msg
+from back.database import get_db, insert_db
+from back.utility  import logging
+from front.utility import get_date, set_kb, del_msg, send_msg, wait_msg
 #\------------------------------------------------------------------/#
 
 
@@ -63,7 +64,7 @@ def add_admin(bot : TeleBot, _id : str) -> None:
         else:
             send_msg(bot, _id, 'Неверный формат id!', set_kb(ADMIN_KB))
 
-    wait_msg(bot, _id, __add_admin, 'Введите id админа в формате 12345678.', rmvKb())
+    wait_msg(bot, _id, __add_admin, 'Введите id админа в формате 12345678.', rmvKb(), [bot, _id])
 #\------------------------------------------------------------------/#
 
 
@@ -104,7 +105,7 @@ def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
             send_msg(bot, acc, msg.text)
         send_msg(bot, msg.chat.id, f'Отправлено уведомлений: {len(accs)}', set_kb(ADMIN_KB))
 
-    wait_msg(bot, _id, __send_info, 'Введите сообщение для рассылки', rmvKb(), bot, accs)
+    wait_msg(bot, _id, __send_info, 'Введите сообщение для рассылки', rmvKb(), [bot, accs])
 #\------------------------------------------------------------------/#
 
 
@@ -115,9 +116,9 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
     @logging()
     def __send_call_resp(msg : Message, bot : TeleBot, _id : int, _user_id : str) -> None:
         send_msg(bot, _user_id, f'Сообщение от тех. поддержки:\n{msg.text}\n')
-        send_msg(bot, _id, f'Сообщение отправлено пользователю @test_tim_bot')
+        send_msg(bot, _id, f'Сообщение отправлено пользователю @test_tim_bot', set_kb(ADMIN_KB))
 
 
     del_msg(_id, msg_id)
-    wait_msg(bot, _id, __send_call_resp, 'Введите сообщение для ответа.', rmvKb(), bot, _id, user_id)
+    wait_msg(bot, _id, __send_call_resp, 'Введите сообщение для ответа.', rmvKb(), [bot, _id, user_id])
 #\------------------------------------------------------------------/#

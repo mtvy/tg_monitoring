@@ -1,5 +1,5 @@
 #/==================================================================\#
-# admin.py                                            (c) Mtvy, 2022 #
+# utility.py                                          (c) Mtvy, 2022 #
 #\==================================================================/#
 #                                                                    #
 # Copyright (c) 2022. Mtvy (Matvei Prudnikov, m.d.prudnik@gmail.com) #
@@ -71,7 +71,7 @@ def del_msg(bot : TeleBot, sender_id : int, _msg_id : int) -> None:
 
 #\------------------------------------------------------------------/#
 @logging()
-def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, *args, **_) -> None:
+def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, args=[], **_) -> None:
     msg = bot.send_message(_id, txt, reply_markup=mrkp)
     bot.register_next_step_handler(msg, func, *args)
 #\------------------------------------------------------------------/#
@@ -79,6 +79,6 @@ def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyK
 
 #\------------------------------------------------------------------/#
 @logging()
-def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, **_) -> None:
+def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, *args, **_) -> None:
     bot.send_message(_id, txt, reply_markup=mrkp)
 #\------------------------------------------------------------------/#
