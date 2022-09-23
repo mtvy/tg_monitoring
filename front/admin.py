@@ -28,8 +28,14 @@ def init_admin(bot : TeleBot, _id : str) -> None:
 
     bot.send_message(_id, txt, reply_markup=rmvKey())
     
+    now = datetime.now()
+    date = f'{now.year}-{now.month}-{now.day}'
+    
     if not __is_exist(_id):
-        insert_db(f"INSERT INTO accs_tb (tib) VALUE ('{_id}')")
+        insert_db(f"INSERT INTO accs_tb (tib, reg_date, entr_date, buys) VALUES ('{_id}', '{date}', '{date}', ''{''}'')")
+    else:
+        insert_db(f"INSERT INTO accs_tb (entr_date) VALUES ('{_id}', '{date}', '{date}', ''{''}'')")
+
     
     bot.send_message(_id, 'Загрузка закончена.', reply_markup=set_keyboard(ADMIN_KB))
 
