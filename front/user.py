@@ -69,7 +69,7 @@ def check_sub(bot: TeleBot, _id: str):
       bot.send_message(_id, "У вас нет подписки. Желаете приобрести?")
       markup = set_keyboard(["Да, Нет"])
       msg = bot.send_message(_id, 'У вас есть ли купон?', reply_markup=rmvKey(markup))
-      bot.register_next_step_handler(msg, buy_sub)
+      bot.register_next_step_handler(msg, get_sub)
       
 
 @logging()
