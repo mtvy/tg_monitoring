@@ -34,7 +34,7 @@ def start(msg : Message) -> None:
         init_admin(bot, _id)
         
     elif _id not in get_ids('users_tb').keys():
-        init_user(msg, bot, _id)
+        init_user(bot, _id)
     
     else:
         start_user(bot, _id)
@@ -51,7 +51,7 @@ def input_keyboard(msg : Message) -> None:
         if _id in ids.keys():
             _funcs[txt](bot, _id)
         else:
-            bot.send_message(_id, info, reply_markup=rmvKey())
+            send_msg(bot, _id, info, rmvKb())
 
 
     ADMIN_FUNC = {

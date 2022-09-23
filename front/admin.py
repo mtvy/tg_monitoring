@@ -7,13 +7,12 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
-from datetime      import datetime
 from typing        import Any, Dict
 from telebot       import TeleBot
-from telebot.types import Message, ReplyKeyboardRemove as rmvKey
+from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 #------------------------\ project modules /-------------------------#
-from back  import *
-from front import *
+from back  import get_db, insert_db, logging
+from front import get_date, set_kb, del_msg, send_msg, wait_msg
 #\------------------------------------------------------------------/#
 
 
@@ -36,7 +35,7 @@ def init_admin(bot : TeleBot, _id : str) -> None:
            'Идёт получение документов. '
            'Подождите окончания загрузки.')
 
-    bot.send_message(_id, txt, reply_markup=rmvKey())
+    send_msg(bot, _id, txt, rmvKb())
     
     date = get_date()
 
@@ -45,8 +44,7 @@ def init_admin(bot : TeleBot, _id : str) -> None:
     else:
         insert_db(f"UPDATE accs_tb SET entr_date='{date}' WHERE tid='{_id}'", 'accs_tb')
 
-    
-    bot.send_message(_id, 'Загрузка закончена.', reply_markup=set_keyboard(ADMIN_KB))
+    send_msg(bot, _id, 'Загрузка закончена.', set_kb(ADMIN_KB))
 #\------------------------------------------------------------------/#
 
 
@@ -59,57 +57,54 @@ def add_admin(bot : TeleBot, _id : str) -> None:
         txt : str = msg.text
         if txt.isdigit():
             if insert_db(f"INSERT INTO admins_tb (tid) VALUES ('{txt}')", 'admins_tb'):
-                bot.send_message(_id, 'Пользователь добавлен!', reply_markup=set_keyboard(ADMIN_KB))
-            else:
-                bot.send_message(_id, 'Пользователь уже добавлен.', reply_markup=set_keyboard(ADMIN_KB))
+                send_msg(bot, _id, 'Пользователь добавлен!', set_kb(ADMIN_KB))
+            else: # ????
+                send_msg(bot, _id, 'Пользователь уже добавлен.', set_kb(ADMIN_KB))
         else:
-            bot.send_message(_id, 'Неверный формат id!', reply_markup=set_keyboard(ADMIN_KB))
+            send_msg(bot, _id, 'Неверный формат id!', set_kb(ADMIN_KB))
 
-
-    msg = bot.send_message(_id, 'Введите id админа в формате 12345678.', reply_markup=rmvKey())
-    bot.register_next_step_handler(msg, __add_admin, bot, _id)
+    wait_msg(bot, _id, __add_admin, 'Введите id админа в формате 12345678.', rmvKb())
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
 def get_session_info(bot : TeleBot, _id : str) -> None:
-    txt = 'Получение статистики за сегодня...'
-    bot.send_message(_id, txt, reply_markup=rmvKey())
+
+    send_msg(bot, _id, 'Получение статистики за сегодня...', rmvKb())
 
     accs = get_db('accs_tb'); info = {'users' : 0, 'buys' : 0}
+    date = get_date()
+
     for acc in accs:
-        now = datetime.now()
-        if acc[3] == f'{now.year}-{now.month}-{now.day}':
+        if acc[3] == date:
             info['users'] += 1
     
-    txt = (f'Пользователей: {info["users"]}\n'
-           f'Покупок: {info["buys"]}')
-    bot.send_message(_id, txt)
-
-    txt = 'Статистика получена!'
-    bot.send_message(_id, txt, reply_markup=set_keyboard(ADMIN_KB))
+    send_msg(bot, _id, f'Пользователей: {info["users"]}\nПокупок: {info["buys"]}')
+    send_msg(bot, _id, 'Статистика получена!', set_kb(ADMIN_KB))
 #\------------------------------------------------------------------/#
 
+
+ACCS_TYPE_KB = ['Админы', 'Пользователи']
 
 #\------------------------------------------------------------------/#
 @logging()
 def ask_accounts(bot : TeleBot, _id : str) -> None:
-    txt = 'Кому сделать уведомление?'
-    bot.send_message(_id, txt, reply_markup=set_keyboard(['Админы', 'Пользователи']))
+    send_msg(bot, _id, 'Кому сделать уведомление?', set_kb(ACCS_TYPE_KB))
+#\------------------------------------------------------------------/#
 
+
+#\------------------------------------------------------------------/#
 @logging()
 def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
     
     @logging()
-    def __send_info(msg : Message, bot: TeleBot, _id : str, accs : Dict[str, Any]) -> None:
+    def __send_info(msg : Message, bot: TeleBot, accs : Dict[str, Any]) -> None:
         for acc in accs.keys():
-            bot.send_message(acc, msg.text)
-        bot.send_message(_id, f'Отправлено уведомлений: {len(accs)}', reply_markup=set_keyboard(ADMIN_KB))
+            send_msg(bot, acc, msg.text)
+        send_msg(bot, msg.chat.id, f'Отправлено уведомлений: {len(accs)}', set_kb(ADMIN_KB))
 
-    txt = 'Введите сообщение для рассылки'
-    msg = bot.send_message(_id, txt, reply_markup=rmvKey())
-    bot.register_next_step_handler(msg, __send_info, bot, _id, accs)
+    wait_msg(bot, _id, __send_info, 'Введите сообщение для рассылки', rmvKb(), bot, accs)
 #\------------------------------------------------------------------/#
 
 
@@ -117,18 +112,12 @@ def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
 @logging()
 def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> None:
 
-    #           make del_msg global
-    @logging()
-    def del_msg(sender_id : int, _msg_id : int) -> None:
-        bot.delete_message(sender_id, _msg_id)
-    
-
     @logging()
     def __send_call_resp(msg : Message, bot : TeleBot, _id : int, _user_id : str) -> None:
-        bot.send_message(_user_id, f'Сообщение от тех. поддержки:\n{msg.text}\n')
-        bot.send_message(_id, f'Сообщение отправлено пользователю @test_tim_bot')
+        send_msg(bot, _user_id, f'Сообщение от тех. поддержки:\n{msg.text}\n')
+        send_msg(bot, _id, f'Сообщение отправлено пользователю @test_tim_bot')
+
 
     del_msg(_id, msg_id)
-    msg = bot.send_message(_id, 'Введите сообщение для ответа.')
-    bot.register_next_step_handler(msg, __send_call_resp, bot, _id, user_id)
+    wait_msg(bot, _id, __send_call_resp, 'Введите сообщение для ответа.', rmvKb(), bot, _id, user_id)
 #\------------------------------------------------------------------/#
