@@ -63,8 +63,8 @@ def get_db(_tb : str) -> List | bool:
 
 
 #\------------------------------------------------------------------/#
-def insert_db(msg : str) -> str | bool:
-    return push_msg(f'{msg};')
+def insert_db(msg : str, _tb : str) -> str | bool:
+    return push_msg(f'{msg}; {DBRESP} {_tb}')
 #\------------------------------------------------------------------/#
 
 
@@ -80,7 +80,7 @@ def __test_database(_write : Callable[[str], None], _tb : str, _tst : str, **_) 
     
     TEST_INSERT = ...
 
-    test = bool(insert_db(TEST_INSERT))
+    test = bool(insert_db(TEST_INSERT, _tb))
     _write(f'[DB_INSERT] [{test}] <- insert_db({TEST_INSERT})\n\n')
 
     test = bool(get_db(_tb))
@@ -115,12 +115,12 @@ def __load_tables(_write : Callable[[str], None], _tb : str, _fl : str, _) -> No
               f"'{org[5].replace(brt, brt*2)}', ARRAY {org[6]}, " \
               f"'{org[7]}', ARRAY {org[8]}); {DBRESP} {_tb};    "
               
-        if not insert_db(txt): 
+        if not insert_db(txt, _tb): 
             _write('[LOAD][False]\n'); return
         
         txt = f'{INS_TB} \'{org[1]}\'); {DBRESP} {_tb};'
 
-        if not insert_db(txt):
+        if not insert_db(txt, _tb):
             _write('[LOAD][False]\n'); return
             
     bar.finish(); _write(f'[LOAD][True]')

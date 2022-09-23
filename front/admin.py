@@ -1,3 +1,4 @@
+from curses.ascii import isdigit
 from datetime      import datetime
 from typing        import Any, Dict, Literal
 from telebot       import TeleBot
@@ -6,7 +7,7 @@ from telebot.types import Message, ReplyKeyboardRemove as rmvKey
 from back.database import get_db, insert_db
 from back.utility  import logging
 
-from front.utility import set_keyboard
+from front.utility import get_date, set_keyboard
 
 
 @logging()
@@ -28,13 +29,12 @@ def init_admin(bot : TeleBot, _id : str) -> None:
 
     bot.send_message(_id, txt, reply_markup=rmvKey())
     
-    now = datetime.now()
-    date = f'{now.year}-{now.month}-{now.day}'
-    
+    date = get_date()
+
     if not __is_exist(_id):
-        insert_db(f"INSERT INTO accs_tb (tib, reg_date, entr_date, buys) VALUES ('{_id}', '{date}', '{date}', ''{''}'')")
+        insert_db(f"INSERT INTO accs_tb (tid, reg_date, entr_date, buys) VALUES ('{_id}', '{date}', '{date}', '{{}}')", 'accs_tb')
     else:
-        insert_db(f"INSERT INTO accs_tb (entr_date) VALUES ('{_id}', '{date}', '{date}', ''{''}'')")
+        insert_db(f"UPDATE accs_tb SET entr_date='{date}' WHERE tid='{_id}'", 'accs_tb')
 
     
     bot.send_message(_id, 'Загрузка закончена.', reply_markup=set_keyboard(ADMIN_KB))
@@ -42,10 +42,21 @@ def init_admin(bot : TeleBot, _id : str) -> None:
 
 @logging()
 def add_admin(bot : TeleBot, _id : str) -> None:
-    if insert_db('INSERT INTO admin_tb...'):
-        bot.send_message(_id, 'Пользователь добавлен!')
-    else:
-        bot.send_message(_id, 'Пользователь не добавлен!')
+
+    @logging()
+    def __add_admin(msg : Message, bot : TeleBot, _id : str):
+        txt : str = msg.text
+        if txt.isdigit():
+            if insert_db(f"INSERT INTO admins_tb (tid) VALUES ('{txt}')", 'admins_tb'):
+                bot.send_message(_id, 'Пользователь добавлен!', reply_markup=set_keyboard(ADMIN_KB))
+            else:
+                bot.send_message(_id, 'Пользователь уже добавлен.', reply_markup=set_keyboard(ADMIN_KB))
+        else:
+            bot.send_message(_id, 'Неверный формат id!', reply_markup=set_keyboard(ADMIN_KB))
+
+
+    msg = bot.send_message(_id, 'Введите id админа в формате 12345678.', reply_markup=rmvKey())
+    bot.register_next_step_handler(msg, __add_admin, bot, _id)
 
 
 @logging()
@@ -79,7 +90,7 @@ def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
     def __send_info(msg : Message, bot: TeleBot, _id : str, accs : Dict[str, Any]) -> None:
         for acc in accs.keys():
             bot.send_message(acc, msg.text)
-        bot.send_message(_id, f'Отправлено уведомлений: {len(accs)}')
+        bot.send_message(_id, f'Отправлено уведомлений: {len(accs)}', reply_markup=set_keyboard(ADMIN_KB))
 
     txt = 'Введите сообщение для рассылки'
     msg = bot.send_message(_id, txt, reply_markup=rmvKey())

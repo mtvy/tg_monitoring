@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from typing        import Dict, List, Tuple
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
@@ -34,3 +35,9 @@ def get_ids(tb : str) -> Dict[str, None]:
     for it in get_db(tb):
         ids[it[1]] = None
     return ids
+
+
+@logging()
+def get_date() -> str:
+    now = datetime.now()
+    return f'{now.year}-{now.month}-{now.day}'

@@ -40,9 +40,8 @@ def start(msg : Message) -> None:
         
     elif _id not in get_ids('users_tb').keys():
         init_user(msg, bot, _id)
-        users_IDS = get_ids('users_tb')
     
-    elif _id in users_IDS.keys():
+    else:
         start_user(bot, _id)
 #\------------------------------------------------------------------/#
 
@@ -53,11 +52,11 @@ def start(msg : Message) -> None:
 def input_keyboard(msg : Message) -> None:
 
     @logging()
-    def __proc_call(bot : TeleBot, _id : str, ids : Dict[str, Any], txt : str) -> bool:
+    def __proc_call(bot : TeleBot, _funcs : Dict[str, Callable], _id : str, ids : Dict[str, Any], txt : str, info : str) -> bool:
         if _id in ids.keys():
-            USER_FUNC[txt](bot, _id)
+            _funcs[txt](bot, _id)
         else:
-            bot.send_message(_id, txt, reply_markup=rmvKey())
+            bot.send_message(_id, info, reply_markup=rmvKey())
 
 
     ADMIN_FUNC = {
@@ -90,20 +89,18 @@ def input_keyboard(msg : Message) -> None:
     txt : str = msg.text
 
     if txt in USER_FUNC.keys():
-        __proc_call(bot, _id, users_IDS, 
+        __proc_call(bot, USER_FUNC, _id, get_ids('users_tb'), txt,
             'Нет доступа. Перезапустите бота /start')
 
     elif txt in ADMIN_FUNC.keys():
-        __proc_call(bot, _id, admins_IDS,
+        __proc_call(bot, ADMIN_FUNC, _id, get_ids('admins_tb'), txt,
             'Нет прав администратора.')
 
-    elif txt in ACC_STATUS.keys() and _id in admins_IDS.keys():
+    elif txt in ACC_STATUS.keys() and _id in get_ids('admins_tb').keys():
         send_info(bot, _id, get_ids(ACC_STATUS[txt]))
     
-    elif txt in MON_FUNC.keys() and _id in users_IDS.keys():
+    elif txt in MON_FUNC.keys() and _id in get_ids('users_tb').keys():
         MON_FUNC[txt](bot, _id)
-    
-    admins_IDS, users_IDS = get_ids('admins_tb'), get_ids('users_tb')
 #\------------------------------------------------------------------/#
 
 
