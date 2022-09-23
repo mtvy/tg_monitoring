@@ -78,6 +78,8 @@ def delete_db(_tb : str, msg : str) -> str | bool:
 @logging()
 def __test_database(_write : Callable[[str], None], _tb : str, _tst : str, **_) -> None:
     
+    #           REWRITE
+
     TEST_INSERT = ...
 
     test = bool(insert_db(TEST_INSERT, _tb))
@@ -101,6 +103,9 @@ def __dump_tables(_write : Callable[[str], None], _tb : str, _fl : str, **_) -> 
 #\------------------------------------------------------------------/#
 @logging()
 def __load_tables(_write : Callable[[str], None], _tb : str, _fl : str, _) -> None:
+
+    #           REWRITE
+
 
     orgs : List[List[str | Any]] = _load(open(_fl))
 

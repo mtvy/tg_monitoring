@@ -12,9 +12,9 @@ from os            import remove     as _rmv
 from os.path       import exists     as _is_exist
 from traceback     import format_exc as _exc
 from datetime      import datetime   as dt
-from typing        import Callable, Literal, Any
 from json          import dump       as dump_json, \
                           load       as load_json
+from typing        import Callable, Literal, Any
 #\------------------------------------------------------------------/#
 
 

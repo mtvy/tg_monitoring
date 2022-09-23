@@ -6,17 +6,12 @@
 #                                                                    #
 #\==================================================================/#
 
-#/------------------------/ installed libs \------------------------\#
+#/-----------------------/ installed libs  \------------------------\#
 from telebot         import TeleBot
 from telebot.types   import Message
-#--------------------------\ project files /-------------------------#
-from back.webhook  import proc_bot        
-from back.utility  import logging
-from back.database import *
-
-from front.admin   import *
-from front.user    import *
-from front.utility import get_ids
+#------------------------\ project modules /-------------------------#
+from back  import *
+from front import *
 #\------------------------------------------------------------------/#
 
 TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'

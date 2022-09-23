@@ -1,26 +1,35 @@
-from curses.ascii import isdigit
+#/==================================================================\#
+# admin.py                                            (c) Mtvy, 2022 #
+#\==================================================================/#
+#                                                                    #
+# Copyright (c) 2022. Mtvy (Matvei Prudnikov, m.d.prudnik@gmail.com) #
+#                                                                    #
+#\==================================================================/#
+
+#/-----------------------/ installed libs  \------------------------\#
 from datetime      import datetime
-from typing        import Any, Dict, Literal
+from typing        import Any, Dict
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKey
+#------------------------\ project modules /-------------------------#
+from back  import *
+from front import *
+#\------------------------------------------------------------------/#
 
-from back.database import get_db, insert_db
-from back.utility  import logging
 
-from front.utility import get_date, set_keyboard
-
-
+#\------------------------------------------------------------------/#
 @logging()
 def __is_exist(_id : str) -> bool:
     for it in get_db('accs_tb'):
         if it[1] == _id:
             return True
     return False
+#\------------------------------------------------------------------/#
 
 
 ADMIN_KB = ['Уведомить', 'Добавить админа', 'Посмотреть LTV']
 
-
+#\------------------------------------------------------------------/#
 @logging()
 def init_admin(bot : TeleBot, _id : str) -> None:
     txt = ('Вы вошли в аккаунт админа. '
@@ -38,8 +47,10 @@ def init_admin(bot : TeleBot, _id : str) -> None:
 
     
     bot.send_message(_id, 'Загрузка закончена.', reply_markup=set_keyboard(ADMIN_KB))
+#\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
 def add_admin(bot : TeleBot, _id : str) -> None:
 
@@ -57,8 +68,10 @@ def add_admin(bot : TeleBot, _id : str) -> None:
 
     msg = bot.send_message(_id, 'Введите id админа в формате 12345678.', reply_markup=rmvKey())
     bot.register_next_step_handler(msg, __add_admin, bot, _id)
+#\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
 def get_session_info(bot : TeleBot, _id : str) -> None:
     txt = 'Получение статистики за сегодня...'
@@ -76,8 +89,10 @@ def get_session_info(bot : TeleBot, _id : str) -> None:
 
     txt = 'Статистика получена!'
     bot.send_message(_id, txt, reply_markup=set_keyboard(ADMIN_KB))
+#\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
 def ask_accounts(bot : TeleBot, _id : str) -> None:
     txt = 'Кому сделать уведомление?'
@@ -95,8 +110,10 @@ def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
     txt = 'Введите сообщение для рассылки'
     msg = bot.send_message(_id, txt, reply_markup=rmvKey())
     bot.register_next_step_handler(msg, __send_info, bot, _id, accs)
+#\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
 def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> None:
 
@@ -114,3 +131,4 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
     del_msg(_id, msg_id)
     msg = bot.send_message(_id, 'Введите сообщение для ответа.')
     bot.register_next_step_handler(msg, __send_call_resp, bot, _id, user_id)
+#\------------------------------------------------------------------/#
