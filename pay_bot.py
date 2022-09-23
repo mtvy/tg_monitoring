@@ -67,10 +67,10 @@ def input_keyboard(msg : Message) -> None:
 
     USER_FUNC = {
         'Мониторинг'     : enter_monitoring,
-        'Соглашение'     : ...,
-        'Тех. Поддержка' : ...,
+        'Соглашение'     : get_agrmnt,
+        'Тех. Поддержка' : call_sup,
         'Профиль'        : show_prfl,
-        'Рефералка'      : ...,
+        'Рефералка'      : get_ref,
         'Назад'          : start_user
     }
 
@@ -101,6 +101,20 @@ def input_keyboard(msg : Message) -> None:
     
     elif txt in MON_FUNC.keys() and _id in get_ids('users_tb').keys():
         MON_FUNC[txt](bot, _id)
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@bot.callback_query_handler(func=lambda call: True)
+@logging()
+def callback_inline(call):
+    data   : str = call.data
+    _id    : int = call.message.chat.id
+    msg_id : int = call.message.message_id
+
+    if data.isdigit():
+        send_call_resp(bot, _id, data, msg_id)
+
 #\------------------------------------------------------------------/#
 
 

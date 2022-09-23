@@ -95,4 +95,22 @@ def send_info(bot : TeleBot, _id : str, accs : Dict[str, Any]) -> None:
     txt = 'Введите сообщение для рассылки'
     msg = bot.send_message(_id, txt, reply_markup=rmvKey())
     bot.register_next_step_handler(msg, __send_info, bot, _id, accs)
+
+
+@logging()
+def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> None:
+
+    #           make del_msg global
+    @logging()
+    def del_msg(sender_id : int, _msg_id : int) -> None:
+        bot.delete_message(sender_id, _msg_id)
     
+
+    @logging()
+    def __send_call_resp(msg : Message, bot : TeleBot, _id : int, _user_id : str) -> None:
+        bot.send_message(_user_id, f'Сообщение от тех. поддержки:\n{msg.text}\n')
+        bot.send_message(_id, f'Сообщение отправлено пользователю @test_tim_bot')
+
+    del_msg(_id, msg_id)
+    msg = bot.send_message(_id, 'Введите сообщение для ответа.')
+    bot.register_next_step_handler(msg, __send_call_resp, bot, _id, user_id)

@@ -1,12 +1,12 @@
 from datetime      import datetime
 from typing        import Any, Dict
 from telebot       import TeleBot
-from telebot.types import Message, ReplyKeyboardRemove as rmvKey
+from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove as rmvKey
 
 from back.database import get_db, insert_db, push_msg
 from back.utility  import logging
 
-from front.utility import get_date, set_keyboard
+from front.utility import get_date, get_ids, set_keyboard
 
 
 USER_KB = [
@@ -80,7 +80,7 @@ def enter_monitoring(bot : TeleBot, _id : str) -> None:
    bot.send_message(_id, txt, reply_markup=set_keyboard(MON_KB))
 
 
-CHNL_KB = ['Показать', 'Добавить', 'Удалить']
+CHNL_KB = ['Показать', 'Добавить', 'Удалить', 'Назад']
 
 @logging()
 def push_chnl(bot : TeleBot, _id : str) -> None:
@@ -95,3 +95,39 @@ def show_prfl(bot : TeleBot, _id : str) -> None:
    txt = (f'Профиль пользователя #{_id}\n'
           f'...')
    bot.send_message(_id, txt, reply_markup=set_keyboard(PRFL_KB))
+
+
+@logging()
+def get_ref(bot : TeleBot, _id : str) -> None:
+   bot.send_message(_id, f'Ваш реферал: {_id}')
+
+
+@logging()
+def get_agrmnt(bot : TeleBot, _id : str) -> None:
+   """### Send agreement to user. """
+   bot.send_message(_id, 'Соглашение: https://...')
+
+
+@logging()
+def call_sup(bot : TeleBot, _id : str) -> None:
+
+   @logging()
+   def __send_call_req(bot : TeleBot, _user_id : str, _admin_id : str, txt : str):
+
+      #         ADD inline markup def 
+      markup = InlineKeyboardMarkup()
+      markup.add(InlineKeyboardButton(text='Ответить', callback_data=_user_id))
+      #...
+      bot.send_message(_admin_id, txt, reply_markup=markup)
+
+   
+   @logging()
+   def __proc_call_send(msg : Message, bot : TeleBot, _user_id : str):
+      txt = f'Сообщение от @test_tim_bot\n{msg.text}'
+      for admin_id in get_ids('admins_tb'):
+         __send_call_req(bot, _user_id, admin_id, txt)
+      bot.send_message(_user_id, 'Сообщение в тех. поддержку отправлено.', reply_markup=set_keyboard(USER_KB))
+
+   msg = bot.send_message(_id, 'Ведите сообщение для тех. поддержки.', reply_markup=rmvKey())
+   bot.register_next_step_handler(msg, __proc_call_send, bot, _id)
+
