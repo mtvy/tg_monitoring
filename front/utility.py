@@ -72,6 +72,30 @@ def del_msg(bot : TeleBot, sender_id : int, _msg_id : int) -> None:
 #\------------------------------------------------------------------/#
 @logging()
 def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, args=[], **_) -> None:
+    """
+    Replacement for register_next_step_handler.
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    ```
+    #Example 1:
+        __kwrgs = {
+            'bot'   : bot,
+            '_id'   : _id, 
+            'func'  : _call_func,     #_call_func(data, info)  
+            'mrkp'  : set_kb(['Hi']), 
+            'txt'   : 'Hello World!,
+            'args'  : [data, info],
+            ...
+            ...
+        }
+    
+        wait_msg(**__kwrgs)  
+    
+    #Example 2: 
+        wait_msg(bot, _id, _call_func, txt, set_kb(['Hi']), [data, info])
+    ```
+    @note Other info at __kwrgs that does not use will comment at this func
+    """
     msg = bot.send_message(_id, txt, reply_markup=mrkp)
     bot.register_next_step_handler(msg, func, *args)
 #\------------------------------------------------------------------/#
@@ -80,5 +104,31 @@ def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyK
 #\------------------------------------------------------------------/#
 @logging()
 def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, *args, **_) -> None:
+    """
+    Replacement for send_message.
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    ```
+    #Example 1:
+        __kwrgs = {
+            'bot'  : bot,
+            '_id'  : _id, 
+            'func' : _call_func,     #_call_func(data, info)  
+            'mrkp' : set_kb(['Hi']), 
+            'txt'  : 'Hello World!,
+            'args' : [data, info]
+            ...
+            ...
+        }
+    
+        send_msg(**__kwrgs)  
+    
+    #Example 2: 
+        send_msg(bot, _id, txt, set_kb(['Hi'])
+
+    #Example 3: 
+        send_msg(bot, _id, txt)
+    ```
+    """
     bot.send_message(_id, txt, reply_markup=mrkp)
 #\------------------------------------------------------------------/#
