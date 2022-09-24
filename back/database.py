@@ -15,26 +15,11 @@ from progress.bar import IncrementalBar as _Bar
 
 if __name__ == "__main__": 
     from utility import logging
+    from vars    import *
 else: 
     from back import logging
+    from back.vars import *
 #\------------------------------------------------------------------/#
-
-
-CONN_ADRGS = {
-    'database' : 'mntr' ,
-    'password' : 'mntr' ,
-    'user'     : 'mntr' ,
-    'host'     : 'localhost',
-    'port'     : '5432'     
-}
-
-DBRESP = 'SELECT COUNT(1) FROM'
-
-CR_ADMINS_TB = f'CREATE TABLE admins_tb(id serial primary key, tid VARCHAR(64), info TEXT[]); {DBRESP} admins_tb;'
-CR_USERS_TB  = f'CREATE TABLE users_tb(id serial primary key, tid VARCHAR(64), info TEXT[]); {DBRESP} users_tb;'
-CR_ACCS_TB   = f'CREATE TABLE accs_tb(id serial primary key, tid VARCHAR(64), reg_date VARCHAR(16), entr_date VARCHAR(16), buys TEXT[], ref ); {DBRESP} accs_tb;'
-
-INS_TB = 'INSERT INTO _tb () VALUES '
 
 
 #\------------------------------------------------------------------/#
