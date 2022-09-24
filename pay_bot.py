@@ -7,8 +7,8 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
-from typing import Any, Callable, Dict
-from telebot         import TeleBot
+from typing        import Any, Callable, Dict
+from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 #------------------------\ project modules /-------------------------#
 from back  import *
@@ -77,8 +77,8 @@ def input_keyboard(msg : Message) -> None:
     elif txt in ADMIN_FUNC.keys():
         __proc_call(bot, ADMIN_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS)
 
-    elif txt in ACC_STATUS.keys() and _id in get_ids('admins_tb').keys():
-        send_info(bot, _id, get_ids(ACC_STATUS[txt]))
+    elif txt in ACC_TYPE.keys() and _id in get_ids('admins_tb').keys():
+        send_info(bot, _id, get_ids(ACC_TYPE[txt]))
     
     elif txt in MON_FUNC.keys() and _id in get_ids('users_tb').keys():
         MON_FUNC[txt](bot, _id)
