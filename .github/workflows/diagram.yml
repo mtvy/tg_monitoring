@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - main
+      - V0.1
 jobs:
   get_data:
     runs-on: ubuntu-latest
