@@ -115,9 +115,9 @@ if __name__ == "__main__":
 
     _args = {
         '_write'  : print,
-        '_p_con'  : {'database' : 'map' , 
-                     'user'     : 'map' , 
-                     'password' : 'map' ,
+        '_p_con'  : {'database' : 'postgres' , 
+                     'user'     : 'postgres' , 
+                     'password' : 'postgres' ,
                      'host'     : 'localhost',
                      'port'     : '5432'     },
         '_db'     : CONN_ADRGS['database'], 

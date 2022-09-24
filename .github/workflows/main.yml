@@ -20,6 +20,18 @@ jobs:
             
             rm -Rfv tg_monitoring
             git clone https://github.com/mtvy/tg_monitoring.git
+
+            sudo -i -u postgres
+
+            psql
+
+            CREATE DATABASE mntr;
+            CREATE USER mntr WITH PASSWORD 'mntr';
+            \c mntr
+            INSERT INTO admins_tb (tid) VALUES ('281321076');
+            \q
+            logout
+
             cd tg_monitoring
             
             docker-compose up -d --build
