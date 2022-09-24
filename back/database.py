@@ -8,7 +8,7 @@
 
 #/-----------------------------/ Libs \-----------------------------\#
 from sys          import argv as _dvars
-from typing       import Any, Callable, List, Tuple
+from typing       import Any, Callable, Dict, List, Tuple
 from json         import dump as _dump, load as _load
 from psycopg2     import connect as connect_db
 from progress.bar import IncrementalBar as _Bar
@@ -24,17 +24,17 @@ else:
 
 #\------------------------------------------------------------------/#
 @logging()
-def __connect() -> Tuple[Any, Any]:
+def __connect(conn_kwrgs=CONN_ADRGS) -> Tuple[Any, Any]:
     """This definition returns connection to database."""
-    return connect_db(**CONN_ADRGS)
+    return connect_db(**conn_kwrgs)
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
-def push_msg(msg : str) -> Any | bool:
+def push_msg(msg : str, conn_kwrgs=CONN_ADRGS) -> Any | bool:
     """This definition sends message to database."""
-    con = __connect(); cur = con.cursor()
+    con = __connect(conn_kwrgs); cur = con.cursor()
 
     if con and cur:
         cur.execute(msg); con.commit()
@@ -78,9 +78,10 @@ def __load_tables(_write : Callable[[str], None], _tb : str, _fl : str, _) -> No
 
 #\------------------------------------------------------------------/# 
 @logging()
-def __cr_database(_write : Callable[[str], None], _db : str, _usr : str, _psswrd : str, **_) -> None:
-    _write(f'[CR_DB_{_db}][{push_msg(f"CREATE DATABASE {_db};")}]')
-    _write(f'[CR_USR_{_usr}][{push_msg(f"CREATE USER {_usr} WITH PASSWORD {_psswrd};")}]')
+def __cr_database(_write : Callable[[str], None], _db : str, _usr : str, _psswrd : str, _p_con : Dict[str, str], **_) -> None:
+    _write(f'[CR_DB_{_db}][{push_msg(f"CREATE DATABASE {_db}")}]', _p_con)
+    _write(f'[CR_USR_{_usr}][{push_msg(f"CREATE USER {_usr} WITH ENCRYPTED PASSWORD {_psswrd}")}]', _p_con)
+    _write(f'[GRANT_PRIVILEGES][{push_msg(f"GRANT ALL PRIVILEGES ON DATABASE {_db} TO {_usr}")}]', _p_con)
 #\------------------------------------------------------------------/#
 
 
@@ -114,6 +115,11 @@ if __name__ == "__main__":
 
     _args = {
         '_write'  : print,
+        '_p_con'  : {'database' : 'postgres' , 
+                     'user'     : 'postgres' , 
+                     'password' : 'postgres' ,
+                     'host'     : 'localhost',
+                     'port'     : '5432'     },
         '_db'     : CONN_ADRGS['database'], 
         '_usr'    : CONN_ADRGS['user'], 
         '_psswrd' : CONN_ADRGS['password'],
