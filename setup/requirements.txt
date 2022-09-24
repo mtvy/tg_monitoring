@@ -1,3 +1,7 @@
-progress                       1.6
-psycopg2-binary                2.9.3
-requests                       2.27.1
+requests==2.27.1
+pyTelegramBotAPI==4.7.0
+progress==1.6
+emoji==2.0.0
+psycopg2-binary==2.9.3
+CherryPy==18.8.0
+pystun3==1.0.0
