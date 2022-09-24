@@ -1,0 +1,26 @@
+name: Server-Setup
+
+on:
+  push:
+    branches:
+    - V0.1
+    
+jobs:
+  
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Connect to host via SSH and update containers
+        uses: fifsky/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          command: |
+            
+            rm -Rfv tg_monitoring
+            git clone https://github.com/mtvy/tg_monitoring.git
+            cd tg_monitoring
+            
+            docker-compose up -d --build
+            

@@ -1,0 +1,4 @@
+
+DEBUG = True
+
+TOKEN = '5361529726:AAHkDG9SoOJUA_1F9rWnIjTXkxW_kpq4vQg'

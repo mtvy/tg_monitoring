@@ -14,13 +14,9 @@ from telebot.types import Message, ReplyKeyboardRemove  as rmvKb   , \
 #------------------------\ project modules /-------------------------#
 from back          import insert_db, logging
 from front.utility import get_date, get_ids, set_kb, wait_msg, send_msg
+from front.vars    import *
 #\------------------------------------------------------------------/#
 
-
-USER_KB = ['Мониторинг', 'Соглашение', 'Тех. Поддержка', 
-                     'Профиль', 'Рефералка'            ]
-
-YN_KB = ['Да', 'Нет']
 
 #\------------------------------------------------------------------/#
 @logging()
@@ -30,17 +26,9 @@ def init_user(bot : TeleBot, _id : str) -> None:
    def is_ref(msg : Message, bot: TeleBot, _id: str) -> None:
 
       # ADD REF COLUMN INTO accs_tb!
-      REF_FUNC = {
-         'Да'     : [wait_msg, 'Пришлите номер реферала в формате 12345678.'],
-         'Нет'    : [send_msg, 'Регистрация пройдена!'],
-         '/stop'  : [send_msg, 'Регистрация пройдена! Реферал не добавлен.'],
-         'nmbr'   : [send_msg, 'Регистрация пройдена! Реферал добавлен.'],
-         'errVal' : [wait_msg, 'Пожалуйста, пришлите в формате 12345678 или нажмите /stop']
-      }
 
       txt : str = msg.text if msg.text in REF_FUNC.keys() \
-                     else 'nmbr' if msg.text.isdigit() \
-                        else 'errVal'
+                     else 'nmbr' if msg.text.isdigit() else 'errVal'
 
       __kwrgs = {
          'bot'  : bot,
@@ -53,65 +41,56 @@ def init_user(bot : TeleBot, _id : str) -> None:
 
       REF_FUNC[txt][0](**__kwrgs)
 
+   
+   REF_FUNC = {'Да'     : [wait_msg, SEND_REF_NUM       ],
+               'Нет'    : [send_msg, REG_DONE           ],
+               '/stop'  : [send_msg, REG_DONE_NO_REF    ],
+               'nmbr'   : [send_msg, REG_DONE_REF       ],
+               'errVal' : [wait_msg, SEND_REF_WRONG_FORM]}
 
-   txt = ('Вы вошли в аккаунт пользователя.\n'
-          'Необходимо пройти регистрацию.')
-   send_msg(bot, _id, txt, rmvKb())
+   send_msg(bot, _id, U_INIT_MSG, rmvKb())
 
    date = get_date()
 
    insert_db(f"INSERT INTO users_tb (tid) VALUES ('{_id}')", 'users_tb')
    insert_db(f"INSERT INTO accs_tb (tid, reg_date, entr_date, buys) VALUES ('{_id}', '{date}', '{date}', '{{}}')", 'accs_tb')
 
-   wait_msg(bot, _id, is_ref, 'У вас есть рефералка?', set_kb(YN_KB), [bot, _id])
-#\------------------------------------------------------------------/#
-
-
-#\------------------------------------------------------------------/#
-@logging()
-def get_refer(bot: TeleBot, _id: str) -> str:
-   send_msg(bot, _id, f'Ваш реферал {_id}')
+   wait_msg(bot, _id, is_ref, U_REF_ASK, set_kb(YN_KB), [bot, _id])
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
 def start_user(bot : TeleBot, _id : str) -> None:
-   send_msg(bot, _id, f'Аккаунт пользователя #{_id}', set_kb(USER_KB))
+   send_msg(bot, _id, f'{U_ACC}{_id}', set_kb(USER_KB))
 #\------------------------------------------------------------------/#
 
-
-MON_KB = ['Аторизация', 'Каналы', 'Настройка', 'Назад']
 
 #\------------------------------------------------------------------/#
 @logging()
 def enter_monitoring(bot : TeleBot, _id : str) -> None:
-   send_msg(bot, _id, 'Настроки мониторинга.', set_kb(MON_KB))
+   send_msg(bot, _id, A_MON_SETUP, set_kb(MON_KB))
 #\------------------------------------------------------------------/#
 
-
-CHNL_KB = ['Показать', 'Добавить', 'Удалить', 'Назад']
 
 #\------------------------------------------------------------------/#
 @logging()
 def push_chnl(bot : TeleBot, _id : str) -> None:
-   send_msg(bot, _id, 'Настройки каналов.', set_kb(CHNL_KB))
+   send_msg(bot, _id, U_CHNL_SET, set_kb(CHNL_KB))
 #\------------------------------------------------------------------/#
 
-
-PRFL_KB = ['Назад']
 
 #\------------------------------------------------------------------/#
 @logging()
 def show_prfl(bot : TeleBot, _id : str) -> None:
-   send_msg(bot, _id, f'Профиль пользователя #{_id}\n...', set_kb(PRFL_KB))
+   send_msg(bot, _id, f'{U_PRFL}{_id}\n...', set_kb(PRFL_KB))
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
 def get_ref(bot : TeleBot, _id : str) -> None:
-   send_msg(bot, _id, f'Ваш реферал: {_id}')
+   send_msg(bot, _id, f'{U_REF}{_id}')
 #\------------------------------------------------------------------/#
 
 
@@ -119,7 +98,7 @@ def get_ref(bot : TeleBot, _id : str) -> None:
 @logging()
 def get_agrmnt(bot : TeleBot, _id : str) -> None:
    """### Send agreement to user. """
-   send_msg(bot, _id, 'Соглашение: https://...')
+   send_msg(bot, _id, U_AGR_MSG)
 #\------------------------------------------------------------------/#
 
 
@@ -139,12 +118,12 @@ def call_sup(bot : TeleBot, _id : str) -> None:
    
    @logging()
    def __proc_call_send(msg : Message, bot : TeleBot, _user_id : str):
-      txt = f'Сообщение от @test_tim_bot\n{msg.text}'
+      txt = f'{A_SUP_MSG}test_tim_bot\n{msg.text}'
       for admin_id in get_ids('admins_tb'):
          __send_call_req(bot, _user_id, admin_id, txt)
-      send_msg(bot, _user_id, 'Сообщение в тех. поддержку отправлено.', set_kb(USER_KB))
+      send_msg(bot, _user_id, U_SUP_SEND, set_kb(USER_KB))
 
-   wait_msg(bot, _id, __proc_call_send, 'Ведите сообщение для тех. поддержки.', rmvKb(), [bot, _id])
+   wait_msg(bot, _id, __proc_call_send, U_SUP_WRITE, rmvKb(), [bot, _id])
 #\------------------------------------------------------------------/#
 
 
@@ -163,17 +142,17 @@ def check_sub(bot: TeleBot, _id: str):
    elif not get_sub_info(_id, 'users_tb'):
       """если ее нет"""
       bot.send_message(_id, "У вас нет подписки. Желаете приобрести?")
-      markup = set_keyboard(["Да, Нет"])
-      msg = bot.send_message(_id, 'У вас есть ли купон?', reply_markup=rmvKey(markup))
+      markup = set_kb(["Да, Нет"])
+      msg = bot.send_message(_id, 'У вас есть ли купон?', reply_markup=rmvKb(markup))
       bot.register_next_step_handler(msg, get_sub)
       
 
 @logging()
 def get_sub(message: str, bot: TeleBot, _id: str):
 
-   markup1 = set_keyboard(['Месяц - n $, 3 месяца - k $, год - m $'])
-   markup2 = set_keyboard(['Месяц - n $, 3 месяца - k $, год - m $'])
-   pay_methds = set_keyboard(['Сбер, Тинькофф, Qiwi'])
+   markup1 = set_kb(['Месяц - n $, 3 месяца - k $, год - m $'])
+   markup2 = set_kb(['Месяц - n $, 3 месяца - k $, год - m $'])
+   pay_methds = set_kb(['Сбер, Тинькофф, Qiwi'])
 
 # покупка с купоном
    if message.text == 'Да':
@@ -202,4 +181,3 @@ def get_sub(message: str, bot: TeleBot, _id: str):
    #elif message.text.isdigit:
    """проверка купона"""
    # bot.send_message(_id, 'Тариф', reply_markup=markup1)
-   

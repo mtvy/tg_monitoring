@@ -1,43 +1,28 @@
-#\------------------------------------------------------------------/#
+#/==================================================================\#
+# webhook.py                                          (c) Mtvy, 2022 #
+#\==================================================================/#
+#                                                                    #
+# Copyright (c) 2022. Mtvy (Matvei Prudnikov, m.d.prudnik@gmail.com) #
+#                                                                    #
+#\==================================================================/#
+
+#/-----------------------/ installed libs  \------------------------\#
 import cherrypy
 
 from stun          import get_ip_info
 from telebot       import TeleBot
 from telebot.types import Update
+#------------------------\ project modules /-------------------------#
 from back.utility  import logging
+from back.vars     import WEBHOOK_SET, \
+                          WEBHOOK_CONFIG, \
+                          WEBHOOK_URL_PATH
 #\------------------------------------------------------------------/#
-
-TOKEN = ...
-
-WEBHOOK_HOST   = ...#get_ip_info()[1]
-WEBHOOK_PORT   = 8443  
-WEBHOOK_LISTEN = '0.0.0.0'
-
-WEBHOOK_SSL_CERT = './webhook_cert.pem'
-WEBHOOK_SSL_PRIV = './webhook_pkey.pem'
-
-WEBHOOK_URL_BASE = f'https://{WEBHOOK_HOST}:{WEBHOOK_PORT}'
-WEBHOOK_URL_PATH = f'/{TOKEN}/'
-
-WEBHOOK_CONFIG = {
-    'server.socket_host'    : WEBHOOK_LISTEN,
-    'server.socket_port'    : WEBHOOK_PORT,
-    'server.ssl_module'     : 'builtin',
-    'server.ssl_certificate': WEBHOOK_SSL_CERT,
-    'server.ssl_private_key': WEBHOOK_SSL_PRIV,
-    'log.access_file'       : 'access.log',
-    'log.error_file'        : 'errors.log',
-    'log.screen'            : False
-}
-
-WEBHOOK_SET = {
-    'url'         : WEBHOOK_URL_BASE + WEBHOOK_URL_PATH, 
-    'certificate' : ... #open(WEBHOOK_SSL_CERT, 'r')
-}
 
 
 #\------------------------------------------------------------------/#
 #                               WebHook                              #
+#\------------------------------------------------------------------/#
 #\------------------------------------------------------------------/#
 class WebhookServer(object):
     """## Webhook Proc Class ##"""
