@@ -5,7 +5,7 @@ CONN_ADRGS = {
     'password' : 'mntr' ,
     'user'     : 'mntr' ,
     'host'     : 'localhost',
-    'port'     : '7001'     
+    'port'     : '5432'     
 }
 
 DBRESP = 'SELECT COUNT(1) FROM'

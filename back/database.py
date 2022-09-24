@@ -23,7 +23,7 @@ else:
 
 
 #\------------------------------------------------------------------/#
-
+@logging()
 def __connect() -> Tuple[Any, Any]:
     """This definition returns connection to database."""
     return connect_db(**CONN_ADRGS)
@@ -31,6 +31,7 @@ def __connect() -> Tuple[Any, Any]:
 
 
 #\------------------------------------------------------------------/#
+@logging()
 def push_msg(msg : str) -> Any | bool:
     """This definition sends message to database."""
     con = __connect(); cur = con.cursor()
@@ -62,18 +63,21 @@ def delete_db(msg : str, _tb : str) -> str | bool:
 
 
 #\------------------------------------------------------------------/#
+@logging()
 def __dump_tables(_write : Callable[[str], None], _tb : str, _fl : str, **_) -> None:
     _dump(get_db(_tb), open(_fl, 'w')); _write(f'[DUMP][True]\n')
 #\------------------------------------------------------------------/#    
 
 
 #\------------------------------------------------------------------/#
+@logging()
 def __load_tables(_write : Callable[[str], None], _tb : str, _fl : str, _) -> None:
     ...
 #\------------------------------------------------------------------/# 
 
 
 #\------------------------------------------------------------------/# 
+@logging()
 def __cr_database(_write : Callable[[str], None], _db : str, _usr : str, _psswrd : str, **_) -> None:
     _write(f'[CR_DB_{_db}][{push_msg(f"CREATE DATABASE {_db};")}]')
     _write(f'[CR_USR_{_usr}][{push_msg(f"CREATE USER {_usr} WITH PASSWORD {_psswrd};")}]')
@@ -81,6 +85,7 @@ def __cr_database(_write : Callable[[str], None], _db : str, _usr : str, _psswrd
 
 
 #\------------------------------------------------------------------/# 
+@logging()
 def __cr_tables(_write : Callable[[str], None], _ctbs : str, **_) -> None:
     for _tb, ind in zip(_ctbs, range(len(_ctbs))): _write(f'[DB{ind+1}][{bool(push_msg(_tb))}]\n')
 #\------------------------------------------------------------------/#
