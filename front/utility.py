@@ -8,7 +8,7 @@
 
 #/-----------------------/ installed libs  \------------------------\#
 from datetime      import datetime
-from typing        import Callable, Dict, List, Tuple
+from typing        import Callable, Dict, List
 from telebot       import TeleBot
 from telebot.types import KeyboardButton       as KbButton, \
                           ReplyKeyboardRemove  as rmvKb    , \
