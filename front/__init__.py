@@ -25,4 +25,5 @@ from front.utility import set_kb, \
                           get_date, \
                           del_msg, \
                           wait_msg, \
-                          send_msg
+                          send_msg, \
+                          set_inline_kb

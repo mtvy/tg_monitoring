@@ -8,12 +8,10 @@
 
 #/-----------------------/ installed libs  \------------------------\#
 from telebot       import TeleBot
-from telebot.types import Message, ReplyKeyboardRemove  as rmvKb   , \
-                                   InlineKeyboardMarkup as inlineKb, \
-                                   InlineKeyboardButton as inlineBtn
+from telebot.types import Message, ReplyKeyboardRemove  as rmvKb
 #------------------------\ project modules /-------------------------#
 from back          import insert_db, logging
-from front.utility import get_date, get_ids, set_kb, wait_msg, send_msg
+from front.utility import get_date, get_ids, set_inline_kb, set_kb, wait_msg, send_msg
 from front.vars    import *
 #\------------------------------------------------------------------/#
 
@@ -105,79 +103,65 @@ def get_agrmnt(bot : TeleBot, _id : str) -> None:
 #\------------------------------------------------------------------/#
 @logging()
 def call_sup(bot : TeleBot, _id : str) -> None:
-
-   @logging()
-   def __send_call_req(bot : TeleBot, _user_id : str, _admin_id : str, txt : str):
-
-      #         ADD inline markup def 
-      markup = inlineKb()
-      markup.add(inlineBtn(text='Ответить', callback_data=_user_id))
-      #...
-      send_msg(bot, _admin_id, txt, markup)
-
    
    @logging()
    def __proc_call_send(msg : Message, bot : TeleBot, _user_id : str):
       txt = f'{A_SUP_MSG}test_tim_bot\n{msg.text}'
       for admin_id in get_ids('admins_tb'):
-         __send_call_req(bot, _user_id, admin_id, txt)
+         send_msg(bot, admin_id, txt, set_inline_kb({'Ответить' : _user_id}))
       send_msg(bot, _user_id, U_SUP_SEND, set_kb(USER_KB))
+
 
    wait_msg(bot, _id, __proc_call_send, U_SUP_WRITE, rmvKb(), [bot, _id])
 #\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
-def get_sub_info(_id : str, _tb : str) -> bool:
-   return True
+def is_sub(_id : str, _tb : str) -> bool:
+   return True # sub -> 2022-9-25 | False
+#\------------------------------------------------------------------/#
 
 
+#\------------------------------------------------------------------/#
 @logging()
-def check_sub(bot: TeleBot, _id: str):
-   if get_sub_info(_id, 'users_tb'):
-      """если есть подписка выводит """
-      #insert_db
-      #bot.send_message(_id, "Ваша подписка действует до {#}")
+def check_sub(bot : TeleBot, _id : str):
 
-   elif not get_sub_info(_id, 'users_tb'):
-      """если ее нет"""
-      bot.send_message(_id, "У вас нет подписки. Желаете приобрести?")
-      markup = set_kb(["Да, Нет"])
-      msg = bot.send_message(_id, 'У вас есть ли купон?', reply_markup=rmvKb(markup))
-      bot.register_next_step_handler(msg, get_sub)
+   @logging()
+   def __get_sub(msg : Message, bot : TeleBot, _id : str):
+
+      txt : str = msg.text
+
+      if txt == 'Да':
+         wait_msg(bot, _id, __get_sub, U_PROMO_ENTER, rmvKb(), [bot, _id])
+         
+      elif txt == 'Нет':
+         wait_msg(bot, _id, __get_sub, 'Тариф', \
+            set_kb(['Месяц - n $', '3 месяца - k $', 'год - m $']), [bot, _id])
+
+      elif txt == 'Месяц - n $':
+         ...
+
+      elif txt == '3 месяца - k $':
+         ...
+
+      elif txt == 'год - k $':
+         ...
       
+      elif txt.isdigit():
+         ...
 
-@logging()
-def get_sub(message: str, bot: TeleBot, _id: str):
 
-   markup1 = set_kb(['Месяц - n $, 3 месяца - k $, год - m $'])
-   markup2 = set_kb(['Месяц - n $, 3 месяца - k $, год - m $'])
-   pay_methds = set_kb(['Сбер, Тинькофф, Qiwi'])
+   @logging()
+   def __ask_sub(msg : Message, bot : TeleBot, _id : str):
+      wait_msg(bot, _id, __get_sub, U_PROMO_ASK, set_kb(YN_KB), [bot, _id]) \
+         if msg.text == 'Да' else start_user(bot, _id)
 
-# покупка с купоном
-   if message.text == 'Да':
-      msg= bot.send_message(_id, 'Введите промо')
-      bot.register_next_step_handler(msg, get_sub)
       
-# покупка без купона
-   elif message.text == 'Нет':
-      msg = bot.send_message(_id, 'Тариф', reply_markup=markup2)
-      bot.register_next_step_handler(msg, get_sub)
+   if is_sub(_id, 'users_tb'):
+      send_msg(bot, _id, 'Ваша подписка действует до 2023-1-1.')
 
-   elif message.text == 'Месяц - n $':
-      """Процедура оплаты"""
-      pass
-      #bot.register_next_step_handler(msg, get_sub)
+   else:
+      wait_msg(bot, _id, __ask_sub, 'У вас нет подписки. Желаете приобрести?', set_kb(YN_KB), [bot, _id])
+#\------------------------------------------------------------------/#  
 
-   elif message.text == '3 месяца - k $':
-      pass
-    # bot.register_next_step_handler(msg, get_sub)
-
-   elif message.text == 'год - k $':
-      """Процедура оплаты"""
-      pass
-      #bot.register_next_step_handler(msg, get_sub)
-   
-   #elif message.text.isdigit:
-   """проверка купона"""
-   # bot.send_message(_id, 'Тариф', reply_markup=markup1)
