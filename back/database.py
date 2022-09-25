@@ -9,9 +9,8 @@
 #/-----------------------------/ Libs \-----------------------------\#
 from sys          import argv as _dvars
 from typing       import Any, Callable, Dict, List, Tuple
-from json         import dump as _dump, load as _load
+from json         import dump as _dump
 from psycopg2     import connect as connect_db
-from progress.bar import IncrementalBar as _Bar
 
 if __name__ == "__main__": 
     from utility import logging
