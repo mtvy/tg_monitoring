@@ -13,7 +13,8 @@ from telebot       import TeleBot
 from telebot.types import KeyboardButton       as KbButton, \
                           ReplyKeyboardRemove  as rmvKb    , \
                           ReplyKeyboardMarkup  as replyKb   , \
-                          InlineKeyboardMarkup as inlineKb
+                          InlineKeyboardMarkup as inlineKb   , \
+                          InlineKeyboardButton as inlineButton
 #------------------------\ project modules /-------------------------#
 from back import get_db, logging
 #\------------------------------------------------------------------/#
@@ -24,21 +25,21 @@ def set_kb(btns : List[str]) -> replyKb:
     """
     Making keyboard
     """
+    key = replyKb(resize_keyboard=True)
+    key.add(*(KbButton(txt) for txt in btns))
 
-    def __get_keyboard(resize=True) -> replyKb:
-        return replyKb(resize_keyboard=resize)
-
-
-    def __get_btn(txt : str) -> KbButton:
-        return KbButton(txt)
+    return key
+#\------------------------------------------------------------------/#
 
 
-    def __gen_btns(btns : List[str]) -> Tuple[KbButton]:
-        return (__get_btn(txt) for txt in btns)
-
-
-    key = __get_keyboard()
-    key.add(*__gen_btns(btns))
+#\------------------------------------------------------------------/#
+@logging()
+def set_inline_kb(btns : Dict[str, str]) -> None:
+    """
+    Making inline keyboard
+    """
+    key = inlineKb(row_width=2)
+    key.add(*(inlineButton(txt, callback_data=btns[txt]) for txt in btns.keys()))
 
     return key
 #\------------------------------------------------------------------/#
