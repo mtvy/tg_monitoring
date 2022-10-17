@@ -17,9 +17,8 @@ from front.user    import init_user, \
                           get_ref, \
                           get_agrmnt, \
                           call_sup, \
-                          get_sub_info, \
-                          check_sub, \
-                          get_sub         
+                          is_sub, \
+                          check_sub
 from front.utility import set_kb, \
                           get_ids, \
                           get_date, \

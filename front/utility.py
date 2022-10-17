@@ -46,10 +46,9 @@ def set_inline_kb(btns : Dict[str, str]) -> None:
 
 
 #\------------------------------------------------------------------/#
-@logging()
 def get_ids(tb : str) -> Dict[str, None]:
-    ids = {}
-    for it in get_db(tb):
+    ids = {}; data = get_db(tb)
+    for it in data if data else []:
         ids[it[1]] = None
     return ids
 #\------------------------------------------------------------------/#
