@@ -52,11 +52,11 @@ class WebhookServer(object):
 @logging()
 def proc_bot(bot : TeleBot) -> bool:
 
-    bot.remove_webhook(); bot.set_webhook(**WEBHOOK_SET)
+    #bot.remove_webhook(); bot.set_webhook(**WEBHOOK_SET)
 
-    cherrypy.config.update(WEBHOOK_CONFIG)
+    #cherrypy.config.update(WEBHOOK_CONFIG)
 
-    cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
+    #cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
 
     return True
 #\------------------------------------------------------------------/#

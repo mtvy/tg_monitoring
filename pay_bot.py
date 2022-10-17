@@ -13,12 +13,26 @@ from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 #------------------------\ project modules /-------------------------#
 from back  import *
 from front import *
+from front.vars import ADMIN_KB
 from setup import *
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
-bot = TeleBot(TOKEN)
+bot = TeleBot(PAY_TOKEN)
+
+__ADMIN_FUNC =  {'Уведомить'       : ask_accounts,
+                 'Добавить админа' : add_admin, 
+                 'Посмотреть LTV'  : get_session_info}
+__USER_FUNC  =  {'Мониторинг'      : enter_monitoring,
+                 'Соглашение'      : get_agrmnt,
+                 'Тех. Поддержка'  : call_sup,
+                 'Профиль'         : show_prfl,
+                 'Рефералка'       : get_ref,
+                 'Назад'           : start_user}
+__MON_FUNC   =  {'Аторизация'      : ...,
+                 'Каналы'          : push_chnl, 
+                 'Настройка'       : ...}
 #\------------------------------------------------------------------/#
 
 
@@ -30,7 +44,7 @@ def start(msg : Message) -> None:
     _id = str(msg.chat.id)
 
     if _id in get_ids('admins_tb').keys():
-        init_admin(bot, _id)
+        init_admin(bot, _id, ADMIN_KB)
         
     elif _id not in get_ids('users_tb').keys():
         init_user(bot, _id)
@@ -56,33 +70,20 @@ def input_keyboard(msg : Message) -> None:
             else send_msg(bot, _id, info, rmvKb())
 
 
-    ADMIN_FUNC =  {'Уведомить'       : ask_accounts,
-                   'Добавить админа' : add_admin, 
-                   'Посмотреть LTV'  : get_session_info}
-    USER_FUNC  =  {'Мониторинг'      : enter_monitoring,
-                   'Соглашение'      : get_agrmnt,
-                   'Тех. Поддержка'  : call_sup,
-                   'Профиль'         : show_prfl,
-                   'Рефералка'       : get_ref,
-                   'Назад'           : start_user}
-    MON_FUNC   =  {'Аторизация'      : ...,
-                   'Каналы'          : push_chnl, 
-                   'Настройка'       : ...}
-
     _id = str(msg.chat.id)
     txt : str = msg.text
 
-    if txt in USER_FUNC.keys():
-        __proc_call(bot, USER_FUNC, _id, get_ids('users_tb'), txt, U_NO_ACCESS)
+    if txt in __USER_FUNC.keys():
+        __proc_call(bot, __USER_FUNC, _id, get_ids('users_tb'), txt, U_NO_ACCESS)
 
-    elif txt in ADMIN_FUNC.keys():
-        __proc_call(bot, ADMIN_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS)
+    elif txt in __ADMIN_FUNC.keys():
+        __proc_call(bot, __ADMIN_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS)
 
     elif txt in ACC_TYPE.keys() and _id in get_ids('admins_tb').keys():
         send_info(bot, _id, get_ids(ACC_TYPE[txt]))
     
-    elif txt in MON_FUNC.keys() and _id in get_ids('users_tb').keys():
-        MON_FUNC[txt](bot, _id)
+    elif txt in __MON_FUNC.keys() and _id in get_ids('users_tb').keys():
+        __MON_FUNC[txt](bot, _id)
 #\------------------------------------------------------------------/#
 
 

@@ -7,13 +7,15 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
-from typing        import Any, Dict
+from typing        import Any, Dict, List
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb
+from back.utility import saveText
 #------------------------\ project modules /-------------------------#
-from front.utility import get_date, set_kb, del_msg, send_msg, wait_msg
+from front.utility import get_date, set_kb, del_msg, send_msg, showFile, wait_msg
 from back          import get_db, insert_db, logging
 from front.vars    import *
+from setup.vars    import CHNLS_FILE
 #\------------------------------------------------------------------/#
 
 
@@ -29,7 +31,7 @@ def __is_exist(_id : str) -> bool:
 
 #\------------------------------------------------------------------/#
 @logging()
-def init_admin(bot : TeleBot, _id : str) -> None:
+def init_admin(bot : TeleBot, _id : str, kb : List[str]) -> None:
 
     send_msg(bot, _id, A_INIT_MSG, rmvKb())
     
@@ -40,7 +42,7 @@ def init_admin(bot : TeleBot, _id : str) -> None:
     else:
         insert_db(f"UPDATE accs_tb SET entr_date='{date}' WHERE tid='{_id}'", 'accs_tb')
 
-    send_msg(bot, _id, A_LOAD_DONE, set_kb(ADMIN_KB))
+    send_msg(bot, _id, A_LOAD_DONE, set_kb(kb))
 #\------------------------------------------------------------------/#
 
 
@@ -114,4 +116,29 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
 
     del_msg(_id, msg_id)
     wait_msg(bot, _id, __send_call_resp, A_RESP_MSG, rmvKb(), [bot, _id, user_id])
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def get_bot_status(bot : TeleBot, _id : str | int) -> None:
+
+    send_msg(bot, _id, 'Получение данных...', rmvKb())
+
+    for it in get_db('bot_info_tb'): # | bot | status | last_req | ... | #
+        send_msg(bot, _id, f'bot: {it[1]}\nstatus: {it[2]}\nlast_req: {it[3]}')
+                               
+    send_msg(bot, _id, 'Данные получены.', rmvKb())
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def get_chnls(bot : TeleBot, _id : str | int) -> None:
+    data = get_db('chnls_tb') # | id | name | tid | num | #
+    txt = f'Количество каналов: {len(data)}\n'
+    for it in data:
+        txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
+    saveText(txt, CHNLS_FILE)
+    showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
 #\------------------------------------------------------------------/#

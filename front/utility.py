@@ -15,8 +15,10 @@ from telebot.types import KeyboardButton       as KbButton, \
                           ReplyKeyboardMarkup  as replyKb   , \
                           InlineKeyboardMarkup as inlineKb   , \
                           InlineKeyboardButton as inlineButton
+from os.path       import exists               as isExist
 #------------------------\ project modules /-------------------------#
 from back import get_db, logging
+from back.utility import rmvFile
 #\------------------------------------------------------------------/#
 
 
@@ -131,4 +133,19 @@ def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rm
     ```
     """
     bot.send_message(_id, txt, reply_markup=mrkp)
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+def showFile(bot : TeleBot, _id : int | str, _fl : str, cap : str, txt : str) -> None:
+    if isExist(_fl):
+        bot.send_document(_id, open(_fl, 'rb'), caption=cap)
+    else:
+        send_msg(bot, _id, txt)
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+def delFile(bot : TeleBot, _id : int | str, _fl : str, txt_t : str, txt_f : str) -> None:
+    send_msg(bot, _id, txt_t if rmvFile(_fl) else txt_f)
 #\------------------------------------------------------------------/#

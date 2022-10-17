@@ -1,3 +1,6 @@
+from os.path import join as join_f
+
+CHNLS_FILE = join_f('data', 'chnls.txt')
 
 ACC_TYPE =  {'Админы'          : 'admins_tb',
              'Пользователи'    : 'users_tb'}
