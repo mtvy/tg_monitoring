@@ -13,6 +13,8 @@ from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 #------------------------\ project modules /-------------------------#
 from back  import *
 from front import *
+from front.user import add_chnl, show_chnls
+from front.vars import CHNL_KB
 from setup import *
 #\------------------------------------------------------------------/#
 
@@ -65,9 +67,12 @@ def input_keyboard(msg : Message) -> None:
                    'Профиль'         : show_prfl,
                    'Рефералка'       : get_ref,
                    'Назад'           : start_user}
-    MON_FUNC   =  {'Аторизация'      : ...,
+    MON_FUNC   =  {'Авторизация'      : ...,
                    'Каналы'          : push_chnl, 
                    'Настройка'       : ...}
+    CHNL_FUNC  = {'Показать'         : show_chnls,
+                  'Добавить'         : add_chnl,
+                  'Удалить'          : del_chnl}
 
     _id = str(msg.chat.id)
     txt : str = msg.text
@@ -83,6 +88,10 @@ def input_keyboard(msg : Message) -> None:
     
     elif txt in MON_FUNC.keys() and _id in get_ids('users_tb').keys():
         MON_FUNC[txt](bot, _id)
+    
+    elif txt in CHNL_KB.keys() and _id in get_ids('users_tb').keys():
+        CHNL_KB[txt](bot, _id)
+
 #\------------------------------------------------------------------/#
 
 

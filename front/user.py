@@ -7,10 +7,13 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
+from ast import Str
+from typing import List, Tuple
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove  as rmvKb
 #------------------------\ project modules /-------------------------#
 from back          import insert_db, logging
+from back.database import get_db, push_msg
 from front.utility import get_date, get_ids, set_inline_kb, set_kb, wait_msg, send_msg
 from front.vars    import *
 #\------------------------------------------------------------------/#
@@ -163,5 +166,56 @@ def check_sub(bot : TeleBot, _id : str):
 
    else:
       wait_msg(bot, _id, __ask_sub, 'У вас нет подписки. Желаете приобрести?', set_kb(YN_KB), [bot, _id])
-#\------------------------------------------------------------------/#  
+
+
+@logging()
+def get_chnls(_id : str, tb : str) -> List[str | None]:
+   for it in get_db(tb):
+      if it == _id:
+         return it[2]
+   return []
+
+
+@logging()
+def show_chnls(bot : TeleBot, _id : str) -> None:
+   send_msg(bot, _id, 'Полуаем список каналов...')
+   chnls = get_chnls(); txt = 'Добавленные каналы\n'
+   for ind, chnl in zip(range(len(chnls), chnls)):
+      txt += f'{ind + 1}) {chnl}\n'
+   send_msg(bot, _id, txt)
+
+
+@logging()
+def add_chnl(bot : TeleBot , _id : str) -> None:
+   chnl_name = send_msg(bot, _id, 'Введите название канала')
+   #wait_msg(bot, _id, ad_chnl, chnl_name)
+
+   #@logging()
+   #def ad_chnl(chnl_name : Message, bot : TeleBot, _id : str, tb : str) -> None:
+      #chnl_name = chnl_name.text
+     # res = push_msg(f'INSERT INTO {tb} VALUES ()')
+
+
+@logging()
+def del_chnl(bot : TeleBot, _id : str) -> None:
+   chnl_name = send_msg(bot, _id, 'Введите название канала, который хотите удалить')
+   wait_msg(bot, _id, chnl_name, rem_chnl)
+
+   @logging()
+   def rem_chnl(bot : TeleBot, _id : str, tb : str, chnl_name : Message) -> None:
+      """deleting chanel from database"""
+
+      chnl_name = chnl_name.text
+      res = push_msg(f'DELETE FROM {tb} WHERE info = {chnl_name};')
+
+      if res == True:
+         send_msg(bot, _id, 'Канал успешно удален!')
+
+      else:
+         chnl_name = send_msg(bot, _id, 'Произошла ошибка. Введите название корректно')
+         wait_msg(bot, _id, chnl_name, rem_chnl)
+
+
+
+   
 
