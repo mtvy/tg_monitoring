@@ -10,7 +10,9 @@ from front.admin   import init_admin, \
                           send_info, \
                           send_call_resp, \
                           get_bot_status, \
-                          get_chnls
+                          get_chnls, \
+                          push_mon, \
+                          set_conf
 from front.user    import init_user, \
                           start_user, \
                           enter_monitoring, \
