@@ -124,8 +124,8 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
 def get_bot_status(bot : TeleBot, _id : str | int) -> None:
 
     send_msg(bot, _id, 'Получение данных...', rmvKb())
-
-    for it in get_db('bot_info_tb'): # | bot | status | last_req | ... | #
+    data = get_db('bot_info_tb')
+    for it in data if data else []: # | bot | status | last_req | ... | #
         send_msg(bot, _id, f'bot: {it[1]}\nstatus: {it[2]}\nlast_req: {it[3]}')
                                
     send_msg(bot, _id, 'Данные получены.', rmvKb())
