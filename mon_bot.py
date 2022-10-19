@@ -20,16 +20,13 @@ from setup import *
 #\------------------------------------------------------------------/#
 bot = TeleBot(MON_TOKEN)
 
-mon_status = False
-
 __ADMIN_FUNC = {'Статус'     : get_bot_status,
                 'Список'     : get_chnls,
                 'Мониторинг' : push_mon,
                 'Конфиг'     : set_conf}
-__MON_FUNC   = {'Запуск по каналам'          : ..., 
-                'Запуск по карточке'         : ..., 
-                'Отправка сообщения в канал' : ..., 
-                'Очистка'                    : ...}
+__MON_FUNC   = {'Запуск по каналам'          : start_list_mon, 
+                'Остановить мониторинг'      : stop_mon,
+                'Отправка сообщения в канал' : send_msg_to_chnl}
 #\------------------------------------------------------------------/#
 
 
@@ -67,9 +64,11 @@ def input_keyboard(msg : Message) -> None:
     txt : str = msg.text
 
     if mon_status and _id in get_db('chnls_tb'):
-        ... 
-    if txt in __ADMIN_FUNC.keys():
+        ...
+    elif txt in __ADMIN_FUNC.keys():
         __proc_call(bot, __ADMIN_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS) 
+    elif txt in __MON_FUNC.keys():
+        __proc_call(bot, __MON_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS)
 #\------------------------------------------------------------------/#
  
 

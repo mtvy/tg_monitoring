@@ -12,7 +12,10 @@ from front.admin   import init_admin, \
                           get_bot_status, \
                           get_chnls, \
                           push_mon, \
-                          set_conf
+                          set_conf, \
+                          start_list_mon, \
+                          stop_mon, \
+                          send_msg_to_chnl
 from front.user    import init_user, \
                           start_user, \
                           enter_monitoring, \
