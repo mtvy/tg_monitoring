@@ -15,7 +15,8 @@ from front.admin   import init_admin, \
                           set_conf, \
                           start_list_mon, \
                           stop_mon, \
-                          send_msg_to_chnl
+                          send_msg_to_chnl, \
+                          send_new_msg
 from front.user    import init_user, \
                           start_user, \
                           enter_monitoring, \
@@ -25,7 +26,10 @@ from front.user    import init_user, \
                           get_agrmnt, \
                           call_sup, \
                           is_sub, \
-                          check_sub
+                          check_sub, \
+                          show_chnls, \
+                          add_chnl, \
+                          rmv_chnl
 from front.utility import delFile, set_kb, \
                           get_ids, \
                           get_date, \

@@ -33,6 +33,9 @@ __USER_FUNC  =  {'Мониторинг'      : enter_monitoring,
 __MON_FUNC   =  {'Аторизация'      : ...,
                  'Каналы'          : push_chnl, 
                  'Настройка'       : ...}
+__CHNLS_FUNC =  {'Показать'        : show_chnls, 
+                 'Добавить'        : add_chnl,
+                 'Удалить'         : rmv_chnl}
 #\------------------------------------------------------------------/#
 
 
@@ -83,7 +86,10 @@ def input_keyboard(msg : Message) -> None:
         send_info(bot, _id, get_ids(ACC_TYPE[txt]))
     
     elif txt in __MON_FUNC.keys() and _id in get_ids('users_tb').keys():
-        __MON_FUNC[txt](bot, _id)
+        __proc_call(bot, __MON_FUNC, _id, get_ids('users_tb'), txt, U_NO_ACCESS)
+
+    elif txt in __CHNLS_FUNC.keys() and _id in get_ids('users_tb').keys():
+        __proc_call(bot, __CHNLS_FUNC, _id, get_ids('users_tb'), txt, U_NO_ACCESS)
 #\------------------------------------------------------------------/#
 
 

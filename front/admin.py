@@ -7,15 +7,16 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
-from typing        import Any, Dict, List
+from typing        import Any, Dict, List, Literal
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb
+from back.database import push_msg
 from back.utility import saveText
 #------------------------\ project modules /-------------------------#
 from front.utility import get_date, set_kb, del_msg, send_msg, showFile, wait_msg
 from back          import get_db, insert_db, logging
 from front.vars    import *
-from setup.vars    import CHNLS_FILE, mon_status
+from setup.vars    import CHNLS_FILE
 #\------------------------------------------------------------------/#
 
 
@@ -54,10 +55,11 @@ def add_admin(bot : TeleBot, _id : str) -> None:
     def __add_admin(msg : Message, bot : TeleBot, _id : str):
         txt : str = msg.text
         if txt.isdigit():
-            if insert_db(f"INSERT INTO admins_tb (tid) VALUES ('{txt}')", 'admins_tb'):
+            if push_msg(f"DELETE FROM users_tb WHERE tid='{txt}'; SELECT COUNT(1) FROM users_tb") and \
+                    insert_db(f"INSERT INTO admins_tb (tid) VALUES ('{txt}')", 'admins_tb'):
                 send_msg(bot, _id, A_ADMIN_ADD, set_kb(ADMIN_KB))
             else: # ????
-                send_msg(bot, _id, A_ADMIN_WAS, set_kb(ADMIN_KB))
+                send_msg(bot, _id, 'Ошибка.', set_kb(ADMIN_KB))
         else:
             send_msg(bot, _id, A_WRONG_ID_FRMT, set_kb(ADMIN_KB))
 
@@ -122,32 +124,55 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
 #\------------------------------------------------------------------/#
 @logging()
 def get_bot_status(bot : TeleBot, _id : str | int) -> None:
+    __KB = ['Статус', 'Список', 'Мониторинг', 'Конфиг']
+
+    @logging()
+    def __insert_bot(msg : TeleBot, bot : TeleBot, _id : str | int) -> None:
+        if msg.text == 'Да':
+            wait_msg(bot, _id, __insert_bot, 'Введите id бота. (12345678)', rmvKb(), [bot, _id])
+        elif msg.text.isdigit():
+            if insert_db(f"INSERT INTO bot_info_tb (bot, status, entr_date) VALUES ('{msg.text}', 'active', '{get_date()}')", 'bot_info_tb'):
+                send_msg(bot, _id, 'Бот добавлен.', set_kb(__KB))
+            else: 
+                send_msg(bot, _id, 'Бот не добавлен.', set_kb(__KB))
+        else:
+                send_msg(bot, _id, 'Бот не добавлен.', set_kb(__KB))
+            
+
 
     send_msg(bot, _id, 'Получение данных...', rmvKb())
     data = get_db('bot_info_tb')
-    for it in data if data else []: # | bot | status | last_req | ... | #
-        send_msg(bot, _id, f'bot: {it[1]}\nstatus: {it[2]}\nlast_req: {it[3]}')
+    if data:
+        for it in data: # | bot | status | last_req | ... | #
+            send_msg(bot, _id, f'Bot: {it[0]}\nСтатус: {it[1]}\nПоследний запрос: {it[3]}\nДата регистрации: {it[2]}')
+        send_msg(bot, _id, 'Данные получены.', set_kb(__KB))
+    else:
+        wait_msg(bot, _id, __insert_bot, 'В БД не добавлено ботов. Добавить?', set_kb(['Да','Нет']), [bot, _id])
                                
-    send_msg(bot, _id, 'Данные получены.', rmvKb())
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
 def get_chnls(bot : TeleBot, _id : str | int) -> None:
-    data = get_db('chnls_tb') # | id | name | tid | num | #
+    send_msg(bot, _id, 'Получение списка каналов...', rmvKb())
+    data = get_db('chnls_tb') # | id | name | tid | num | utids | #
     txt = f'Количество каналов: {len(data)}\n'
-    for it in data:
-        txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
-    saveText(txt, CHNLS_FILE)
-    showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
+    if data:
+        for it in data:
+            txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
+        saveText(txt, CHNLS_FILE)
+        showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
+        send_msg(bot, _id, 'Загрузка закончена.', set_kb(['Статус', 'Список', 'Мониторинг', 'Конфиг']))
+    else:
+        send_msg(bot, _id, 'Каналы не добавлены.', set_kb(['Статус', 'Список', 'Мониторинг', 'Конфиг']))
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
-def push_mon(bot : TeleBot, _id : str | int) -> None:
-    __MON_KB = ['Запуск по каналам', 'Отправка сообщения в канал']
+def push_mon(bot : TeleBot, _id : str | int, _status : bool) -> None:
+    __MON_KB = ['Остановить мониторинг' if _status else 'Запуск по каналам', 'Отправка сообщения в канал', 'Назад']
     send_msg(bot, _id, 'Мониторинг.', set_kb(__MON_KB))
 #\------------------------------------------------------------------/#
 
@@ -162,43 +187,39 @@ def set_conf(bot : TeleBot, _id : str | int) -> None:
 
 #\------------------------------------------------------------------/#
 @logging()
-def start_list_mon(bot : TeleBot, _id : str | int) -> None:
-    global mon_status; mon_status = True
-
-    __STOP_MON_KB = ['Остановить мониторинг', 'Отправка сообщения в канал']
+def start_list_mon(bot : TeleBot, _id : str | int) -> Literal[True]:
+    __STOP_MON_KB = ['Остановить мониторинг', 'Отправка сообщения в канал', 'Назад']
     send_msg(bot, _id, 'Запущен мониториг по списку.', set_kb(__STOP_MON_KB))
+    return True
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
-def stop_mon(bot : TeleBot, _id : str | int) -> None:
-    global mon_status; mon_status = False
-
-    __MON_KB = ['Запуск по каналам', 'Отправка сообщения в канал']
+def stop_mon(bot : TeleBot, _id : str | int) -> Literal[False]:
+    __MON_KB = ['Запуск по каналам', 'Отправка сообщения в канал', 'Назад']
     send_msg(bot, _id, 'Мониторинг остановлен.', set_kb(__MON_KB))
+    return False
 #\------------------------------------------------------------------/#
 
 
 #\------------------------------------------------------------------/#
 @logging()
 def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> None:
+    __KB = ['Статус', 'Список', 'Мониторинг', 'Конфиг']
 
     @logging()
     def __send_msg(msg : Message, bot : TeleBot, _id : str | int, chnl : str) -> None:
-        global mon_status
-        __mon_kb = ['Остановить мониторинг' \
-            if mon_status else 'Запуск по каналам', 'Отправка сообщения в канал']
 
         chnls : Dict[str, str] = get_db('chnls_tb') # {name : tid}
 
-        if chnl in chnls.keys():
+        if chnl in chnls:
             txt = msg.text
             _id = chnls[chnl]
         else:
             txt = 'Канал не найден.'
 
-        send_msg(bot, _id, txt, set_kb(__mon_kb))
+        send_msg(bot, _id, txt, set_kb(__KB))
         
 
     @logging()
@@ -206,5 +227,19 @@ def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> None:
         wait_msg(bot, _id, __send_msg, 'Введите сообщение.', rmvKb(), [bot, _id, msg.text])
         
     
-    wait_msg(bot, _id, __send_msg_to_chnl, 'Введите название канала.', rmvKb(), [bot, _id])
+    wait_msg(bot, _id, __send_msg_to_chnl, 'Введите название канала...', rmvKb(), [bot, _id])
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def send_new_msg(bot : TeleBot, gid : str, msg : Message) -> None:
+    # | id | name | tid | num | utids | #
+    ids = []; txt : str = f'Группа: {gid}\n{msg.text}'
+    for group in get_db('chnls_tb'):
+        if group[2] == gid:
+            ids = group[4]
+    
+    for _id in ids:
+        send_msg(bot, _id, txt)
 #\------------------------------------------------------------------/#

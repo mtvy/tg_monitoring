@@ -7,10 +7,13 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
+from curses.ascii import isdigit
+from typing import List
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove  as rmvKb
 #------------------------\ project modules /-------------------------#
 from back          import insert_db, logging
+from back.database import get_db, push_msg
 from front.utility import get_date, get_ids, set_inline_kb, set_kb, wait_msg, send_msg
 from front.vars    import *
 #\------------------------------------------------------------------/#
@@ -80,6 +83,81 @@ def push_chnl(bot : TeleBot, _id : str) -> None:
 
 #\------------------------------------------------------------------/#
 @logging()
+def show_chnls(bot : TeleBot, _id : str) -> None:
+   send_msg(bot, _id, 'Получение каналов...', rmvKb())
+   users = get_db('users_tb')
+   if users:
+      for it in users:
+         if it[1] == _id:
+            if it[2]:
+               send_msg(bot, _id, f'Получено {len(it[2])}...')
+               for chnl in it[2]:
+                  send_msg(bot, _id, chnl)
+               send_msg(bot, _id, f'Загрузка закончена.', set_kb(USER_KB))
+               return
+            else:
+               send_msg(bot, _id, f'Вы не добавили каналы.', set_kb(USER_KB))
+               return
+      send_msg(bot, _id, f'Перезапустите бота /start')
+   else:
+      send_msg(bot, _id, f'Перезапустите бота /start')
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def add_chnl(bot : TeleBot, _id : str) -> None:
+
+   @logging()
+   def __add_chnl(msg : Message, bot : TeleBot, _id : str) -> None:
+      txt : str = msg.text
+      if txt.isdigit():
+         users = get_db('users_tb')
+         for user in users:
+            if _id == user[1]:
+               if push_msg(f"UPDATE users_tb SET info = ARRAY{[txt] if not user[2] else user[2] + [txt]} WHERE tid = '{_id}'; SELECT COUNT(1) FROM users_tb"):
+                  send_msg(bot, _id, f'{txt} добавлен.', set_kb(USER_KB))
+               else:
+                  send_msg(bot, _id, f'{txt} не добавлен.', set_kb(USER_KB))
+      else:
+         send_msg(bot, _id, f'[{txt}] не верный формат id.', set_kb(USER_KB))
+
+               
+   wait_msg(bot, _id, __add_chnl, 'Введите id канала. (123456789)', rmvKb(), [bot, _id])
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def rmv_chnl(bot : TeleBot, _id : str) -> None:
+
+   @logging()
+   def __rmv_chnl(msg : Message, bot : TeleBot, _id : str, chnls : List) -> None:
+      txt : str = msg.text
+      chnls = [chnl for chnl in chnls if chnl != txt]
+      if txt.isdigit():
+         if chnls:
+            if push_msg(f"UPDATE users_tb SET info = ARRAY{chnls} WHERE tid = '{_id}'; SELECT COUNT(1) FROM users_tb"):
+               send_msg(bot, _id, f'{txt} удалён.', set_kb(USER_KB))
+         elif push_msg(f"UPDATE users_tb SET info = '{{}}' WHERE tid = '{_id}'; SELECT COUNT(1) FROM users_tb"):
+               send_msg(bot, _id, f'{txt} удалён.', set_kb(USER_KB))
+         else:
+            send_msg(bot, _id, f'{txt} не удалён.', set_kb(USER_KB))
+      else:
+         send_msg(bot, _id, f'[{txt}] не верный формат id.', set_kb(USER_KB)) 
+
+   send_msg(bot, _id, 'Получение каналов...', rmvKb())
+   users = get_db('users_tb')
+   for user in users:
+      if user[1] == _id:
+         wait_msg(bot, _id, __rmv_chnl, 'Каналы получены. Какой удалить?', set_kb(user[2]), [bot, _id, user[2]])
+         return
+   send_msg(bot, _id, 'Каналы получены.', set_kb(user[2]))   
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
 def show_prfl(bot : TeleBot, _id : str) -> None:
    send_msg(bot, _id, f'{U_PRFL}{_id}\n...', set_kb(PRFL_KB))
 #\------------------------------------------------------------------/#
@@ -106,7 +184,7 @@ def call_sup(bot : TeleBot, _id : str) -> None:
    
    @logging()
    def __proc_call_send(msg : Message, bot : TeleBot, _user_id : str):
-      txt = f'{A_SUP_MSG}test_tim_bot\n{msg.text}'
+      txt = f'{A_SUP_MSG}{msg.chat.username}\n{msg.text}'
       for admin_id in get_ids('admins_tb'):
          send_msg(bot, admin_id, txt, set_inline_kb({'Ответить' : _user_id}))
       send_msg(bot, _user_id, U_SUP_SEND, set_kb(USER_KB))
