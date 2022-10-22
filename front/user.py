@@ -253,6 +253,7 @@ def auf_mon(bot : TeleBot, _id : str) -> None:
       for user in users:
          if _id == user[1]:
             chnls = user[2]
+            break
       if chnls:
          for chnl in chnls:
             data = push_msg(f"SELECT * FROM chnls_tb WHERE tid = '{chnl}'")
