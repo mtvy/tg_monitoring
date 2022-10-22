@@ -127,11 +127,12 @@ def get_bot_status(bot : TeleBot, _id : str | int) -> None:
     __KB = ['Статус', 'Список', 'Мониторинг', 'Конфиг']
 
     @logging()
-    def __insert_bot(msg : TeleBot, bot : TeleBot, _id : str | int) -> None:
-        if msg.text == 'Да':
+    def __insert_bot(msg : Message, bot : TeleBot, _id : str | int) -> None:
+        txt : str = msg.text
+        if txt == 'Да':
             wait_msg(bot, _id, __insert_bot, 'Введите id бота. (12345678)', rmvKb(), [bot, _id])
-        elif msg.text.isdigit():
-            if insert_db(f"INSERT INTO bot_info_tb (bot, status, entr_date) VALUES ('{msg.text}', 'active', '{get_date()}')", 'bot_info_tb'):
+        elif txt.isdigit():
+            if insert_db(f"INSERT INTO bot_info_tb (bot, status, entr_date) VALUES ('{txt}', 'active', '{get_date()}')", 'bot_info_tb'):
                 send_msg(bot, _id, 'Бот добавлен.', set_kb(__KB))
             else: 
                 send_msg(bot, _id, 'Бот не добавлен.', set_kb(__KB))
@@ -160,7 +161,7 @@ def get_chnls(bot : TeleBot, _id : str | int) -> None:
     txt = f'Количество каналов: {len(data)}\n'
     if data:
         for it in data:
-            txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
+            txt = f'{txt}{it[0]} {it[1]} {it[2]} {it[3]}\n'
         saveText(txt, CHNLS_FILE, 'w')
         showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
         send_msg(bot, _id, 'Загрузка закончена.', set_kb(['Статус', 'Список', 'Мониторинг', 'Конфиг']))
@@ -211,23 +212,29 @@ def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> None:
     @logging()
     def __send_msg(msg : Message, bot : TeleBot, _id : str | int, chnl : str) -> None:
 
-        chnls : Dict[str, str] = get_db('chnls_tb') # {name : tid}
+        chnls : Dict[str, str] = [it[2] for it in get_db('chnls_tb')] # {name : tid}
 
         if chnl in chnls:
-            txt = msg.text
-            _id = chnls[chnl]
-        else:
-            txt = 'Канал не найден.'
+            data = send_msg(bot, chnl, msg.text)
+            if data:
+                send_msg(bot, _id, 'Сообение отправлено.', set_kb(__KB))
+            else:
+                send_msg(bot, _id, 'Сообение не отправлено.', set_kb(__KB))
 
-        send_msg(bot, _id, txt, set_kb(__KB))
-        
+        else:
+            send_msg(bot, _id, 'Канал не найден.', set_kb(__KB))
+
+
 
     @logging()
     def __send_msg_to_chnl(msg : Message, bot : TeleBot, _id : str | int) -> None:
-        wait_msg(bot, _id, __send_msg, 'Введите сообщение.', rmvKb(), [bot, _id, msg.text])
-        
+        txt : str = msg.text
+        if txt.isdigit():
+            wait_msg(bot, _id, __send_msg, 'Введите сообщение.', rmvKb(), [bot, _id, txt])
+        else:
+            send_msg(bot, _id, 'Неправильный формат id.', set_kb(__KB))
     
-    wait_msg(bot, _id, __send_msg_to_chnl, 'Введите название канала...', rmvKb(), [bot, _id])
+    wait_msg(bot, _id, __send_msg_to_chnl, 'Введите id канала. (123456789)', rmvKb(), [bot, _id])
 #\------------------------------------------------------------------/#
 
 

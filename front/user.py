@@ -261,7 +261,7 @@ def auf_mon(bot : TeleBot, _id : str) -> None:
             if data:
                data = data[0]
                if _id not in data[4]:
-                  push_msg(f"UPDATE chnls_tb SET num = '{int(data[3]) + 1}', utids = ARRAY{[_id] if not data[4] else [_id] + data[4]}; SELECT COUNT(1) FROM chnls_tb")
+                  push_msg(f"UPDATE chnls_tb SET num = '{int(data[3]) + 1}', utids = ARRAY{[_id] if not data[4] else [_id] + data[4]} WHERE tid = '{chnl}'; SELECT COUNT(1) FROM chnls_tb")
             else:
                insert_db(f"INSERT INTO chnls_tb (tid, num, utids) VALUES ('{chnl}', '1', ARRAY{[_id]})", 'chnls_tb')
          send_msg(bot, _id, 'Каналы загружены.', set_kb(USER_KB))

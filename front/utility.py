@@ -105,7 +105,7 @@ def wait_msg(bot : TeleBot, _id : str, func : Callable, txt : str, mrkp : replyK
 
 #\------------------------------------------------------------------/#
 @logging()
-def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, *args, **_) -> None:
+def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rmvKb=None, *args, **_) -> bool:
     """
     Replacement for send_message.
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,7 +132,7 @@ def send_msg(bot : TeleBot, _id : str, txt : str, mrkp : replyKb | inlineKb | rm
         send_msg(bot, _id, txt)
     ```
     """
-    bot.send_message(_id, txt, reply_markup=mrkp)
+    bot.send_message(_id, txt, reply_markup=mrkp); return True
 #\------------------------------------------------------------------/#
 
 
