@@ -148,11 +148,11 @@ def rmv_chnl(bot : TeleBot, _id : str) -> None:
 
    send_msg(bot, _id, 'Получение каналов...', rmvKb())
    users = get_db('users_tb')
-   for user in users:
-      if user[1] == _id:
+   for user in users if users else []:
+      if user[1] == _id and user[2]:
          wait_msg(bot, _id, __rmv_chnl, 'Каналы получены. Какой удалить?', set_kb(user[2]), [bot, _id, user[2]])
          return
-   send_msg(bot, _id, 'Каналы получены.', set_kb(user[2]))   
+   send_msg(bot, _id, 'Каналы получены.', set_kb(USER_KB))   
 #\------------------------------------------------------------------/#
 
 
@@ -241,5 +241,32 @@ def check_sub(bot : TeleBot, _id : str):
 
    else:
       wait_msg(bot, _id, __ask_sub, 'У вас нет подписки. Желаете приобрести?', set_kb(YN_KB), [bot, _id])
-#\------------------------------------------------------------------/#  
+#\------------------------------------------------------------------/#
+
+
+#\------------------------------------------------------------------/#
+@logging()
+def auf_mon(bot : TeleBot, _id : str) -> None:
+   send_msg(bot, _id, 'Загрузка каналов...', rmvKb())
+   users = get_db('users_tb'); chnls = []
+   if users:
+      for user in users:
+         if _id == user[1]:
+            chnls = user[2]
+      if chnls:
+         for chnl in chnls:
+            data = push_msg(f"SELECT * FROM chnls_tb WHERE tid = '{chnl}'")
+            
+            if data:
+               data = data[0]
+               if _id not in data[4]:
+                  push_msg(f"UPDATE chnls_tb SET num = '{int(data[3]) + 1}', utids = ARRAY{[_id] if not data[4] else [_id] + data[4]}; SELECT COUNT(1) FROM chnls_tb")
+            else:
+               insert_db(f"INSERT INTO chnls_tb (tid, num, utids) VALUES ('{chnl}', '1', ARRAY{[_id]})", 'chnls_tb')
+         send_msg(bot, _id, 'Каналы загружены.', set_kb(USER_KB))
+         return
+
+
+   send_msg(bot, _id, 'Презапустите бота /start', set_kb(USER_KB))
+#\------------------------------------------------------------------/#
 

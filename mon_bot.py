@@ -20,10 +20,10 @@ from setup import *
 #\------------------------------------------------------------------/#
 bot = TeleBot(MON_TOKEN)
 
-__ADMIN_FUNC = {'Статус'     : get_bot_status,
-                'Список'     : get_chnls,
-                'Мониторинг' : push_mon,
-                'Конфиг'     : set_conf}
+__ADMIN_FUNC = {'Статус'                     : get_bot_status,
+                'Список'                     : get_chnls,
+                'Мониторинг'                 : push_mon,
+                'Конфиг'                     : set_conf}
 __MON_FUNC   = {'Запуск по каналам'          : start_list_mon, 
                 'Остановить мониторинг'      : stop_mon,
                 'Отправка сообщения в канал' : send_msg_to_chnl}

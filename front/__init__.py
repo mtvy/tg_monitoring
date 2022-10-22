@@ -29,7 +29,8 @@ from front.user    import init_user, \
                           check_sub, \
                           show_chnls, \
                           add_chnl, \
-                          rmv_chnl
+                          rmv_chnl, \
+                          auf_mon
 from front.utility import delFile, set_kb, \
                           get_ids, \
                           get_date, \

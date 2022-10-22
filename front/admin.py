@@ -161,7 +161,7 @@ def get_chnls(bot : TeleBot, _id : str | int) -> None:
     if data:
         for it in data:
             txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
-        saveText(txt, CHNLS_FILE)
+        saveText(txt, CHNLS_FILE, 'w')
         showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
         send_msg(bot, _id, 'Загрузка закончена.', set_kb(['Статус', 'Список', 'Мониторинг', 'Конфиг']))
     else:

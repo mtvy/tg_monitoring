@@ -30,7 +30,7 @@ __USER_FUNC  =  {'Мониторинг'      : enter_monitoring,
                  'Профиль'         : show_prfl,
                  'Рефералка'       : get_ref,
                  'Назад'           : start_user}
-__MON_FUNC   =  {'Аторизация'      : ...,
+__MON_FUNC   =  {'Аторизация'      : auf_mon,
                  'Каналы'          : push_chnl, 
                  'Настройка'       : ...}
 __CHNLS_FUNC =  {'Показать'        : show_chnls, 
