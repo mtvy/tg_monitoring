@@ -206,7 +206,7 @@ def stop_mon(bot : TeleBot, _id : str | int) -> Literal[False]:
 
 #\------------------------------------------------------------------/#
 @logging()
-def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> None:
+def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> bool:
     __KB = ['Статус', 'Список', 'Мониторинг', 'Конфиг']
 
     @logging()
@@ -229,12 +229,13 @@ def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> None:
     @logging()
     def __send_msg_to_chnl(msg : Message, bot : TeleBot, _id : str | int) -> None:
         txt : str = msg.text
-        if txt.isdigit():
+        if txt.isdigit() or txt[1:].isdigit():
             wait_msg(bot, _id, __send_msg, 'Введите сообщение.', rmvKb(), [bot, _id, txt])
         else:
             send_msg(bot, _id, 'Неправильный формат id.', set_kb(__KB))
     
     wait_msg(bot, _id, __send_msg_to_chnl, 'Введите id канала. (123456789)', rmvKb(), [bot, _id])
+    return True
 #\------------------------------------------------------------------/#
 
 
@@ -246,6 +247,7 @@ def send_new_msg(bot : TeleBot, gid : str, msg : Message) -> None:
     for group in get_db('chnls_tb'):
         if group[2] == gid:
             ids = group[4]
+            break
     
     for _id in ids:
         send_msg(bot, _id, txt)

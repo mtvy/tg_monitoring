@@ -111,7 +111,7 @@ def add_chnl(bot : TeleBot, _id : str) -> None:
    @logging()
    def __add_chnl(msg : Message, bot : TeleBot, _id : str) -> None:
       txt : str = msg.text
-      if txt.isdigit():
+      if txt.isdigit() or txt[1:].isdigit():
          users = get_db('users_tb')
          for user in users:
             if _id == user[1]:

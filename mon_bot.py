@@ -68,8 +68,8 @@ def input_keyboard(msg : Message) -> None:
     _id = str(msg.chat.id)
     txt : str = msg.text
 
-    if mon_status and _id in get_db('chnls_tb'):
-        send_new_msg(bot, _id, msg)
+    if mon_status and _id in (it[2] for it in get_db('chnls_tb')):
+        send_new_msg(TeleBot(PAY_TOKEN), _id, msg)
     elif txt == 'Мониторинг' and _id in get_ids('admins_tb').keys():
         push_mon(bot, _id, mon_status)
     elif txt in __ADMIN_FUNC.keys():
