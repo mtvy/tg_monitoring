@@ -24,6 +24,11 @@ __ADMIN_FUNC = {'Статус'     : get_bot_status,
                 'Список'     : get_chnls,
                 'Мониторинг' : push_mon,
                 'Конфиг'     : set_conf}
+__CONF_FUNC  = {'Проверка канала' : check_chnl,
+                'Добавление бота' : add_bot,
+                'Статус'          : get_bot_status}
+
+
 #\------------------------------------------------------------------/#
 
 
@@ -62,11 +67,12 @@ def input_keyboard(msg : Message) -> None:
 
     if txt in __ADMIN_FUNC.keys():
         __proc_call(bot, __ADMIN_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS) 
+    elif txt in __CONF_FUNC.keys():
+        __proc_call(bot, __CONF_FUNC, _id, get_ids('admins_tb'), txt, A_NO_ACCESS)
 #\------------------------------------------------------------------/#
 
 
 #\==================================================================/#
 if __name__ == "__main__":
-    if DEBUG or not proc_bot(bot):
-        bot.polling(none_stop=True)
+    bot.polling(none_stop=True)
 #\==================================================================/#

@@ -7,10 +7,12 @@
 #\==================================================================/#
 
 #/-----------------------/ installed libs  \------------------------\#
+from socket import MsgFlag
 from typing        import Any, Dict, List
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb
 from back.utility import saveText
+import time
 #------------------------\ project modules /-------------------------#
 from front.utility import get_date, set_kb, del_msg, send_msg, showFile, wait_msg
 from back          import get_db, insert_db, logging
@@ -114,7 +116,7 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
         send_msg(bot, _id, f'{A_SUP_MSG}test_tim_bot', set_kb(ADMIN_KB))
 
 
-    del_msg(_id, msg_id)
+    del_msg(bot, _id, msg_id)
     wait_msg(bot, _id, __send_call_resp, A_RESP_MSG, rmvKb(), [bot, _id, user_id])
 #\------------------------------------------------------------------/#
 
@@ -124,10 +126,11 @@ def send_call_resp(bot : TeleBot, _id : int, user_id : str, msg_id : int) -> Non
 def get_bot_status(bot : TeleBot, _id : str | int) -> None:
 
     send_msg(bot, _id, 'Получение данных...', rmvKb())
+    data = get_db('bot_info_tb')
 
-    for it in get_db('bot_info_tb'): # | bot | status | last_req | ... | #
+    for it in data if data else []: # | bot | status | last_req | ... | #
         send_msg(bot, _id, f'bot: {it[1]}\nstatus: {it[2]}\nlast_req: {it[3]}')
-                               
+                            
     send_msg(bot, _id, 'Данные получены.', rmvKb())
 #\------------------------------------------------------------------/#
 
@@ -136,9 +139,12 @@ def get_bot_status(bot : TeleBot, _id : str | int) -> None:
 @logging()
 def get_chnls(bot : TeleBot, _id : str | int) -> None:
     data = get_db('chnls_tb') # | id | name | tid | num | #
-    txt = f'Количество каналов: {len(data)}\n'
-    for it in data:
-        txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
+    if data:
+        txt = f'Количество каналов: {len(data)}\n'
+        for it in data:
+            txt = f'{txt}{it[0]+1} {it[1]} {it[2]} {it[3]}\n'
+    else:
+        send_msg(bot, _id, 'Каналов нет.')
     saveText(txt, CHNLS_FILE)
     showFile(bot, _id, CHNLS_FILE, 'Каналы', 'Ошибка получения.')
 #\------------------------------------------------------------------/#
@@ -158,3 +164,33 @@ def set_conf(bot : TeleBot, _id : str | int) -> None:
     __CONF_KB = ['Проверка канала', 'Добавление бота', 'Статус']
     send_msg(bot, _id, 'Конфигурирование.', set_kb(__CONF_KB))
 #\------------------------------------------------------------------/#
+
+@logging()
+def add_bot(bot: TeleBot, _id : str | int) -> None:
+
+    logging()
+    def __add_bot(chnl : Message, bot : TeleBot, _id : str | int):
+        res = __check_chnl(chnl, bot, _id)
+        if res == False:
+            time.sleep(1)
+            send_msg(bot, _id, 'Добавьте бота в канал.')
+    name = 'Пришлите название канала в формате @имя_канала'
+    wait_msg(bot, _id, __add_bot, name, rmvKb(),  [bot, _id])
+
+@logging()
+def check_chnl(bot : TeleBot, _id : str | int):
+    name = 'Пришлите название канала в формате @имя_канала.'
+    wait_msg(bot, _id, __check_chnl, name ,rmvKb(), [bot, _id])
+
+@logging()
+def __check_chnl(chnl : Message, bot : TeleBot, _id : str | int) -> bool:
+    send_msg(bot, _id, 'Идет проверка...')
+    chanel = chnl.text
+    mes = 'I am added'
+    try:
+        bot.send_message(chat_id=chanel, text= mes)
+        send_msg(bot, _id, 'Бот добавлен в канал.')
+        return True
+    except:
+        send_msg(bot, _id, 'Бот не добавлен в канал.')
+        return False

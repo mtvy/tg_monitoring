@@ -103,6 +103,5 @@ def callback_inline(call):
 
 #\==================================================================/#
 if __name__ == "__main__":
-    if DEBUG or not proc_bot(bot):
-        bot.polling(none_stop=True)
+    bot.polling(none_stop=True)
 #\==================================================================/#
