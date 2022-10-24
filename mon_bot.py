@@ -62,7 +62,7 @@ def input_keyboard(msg : Message) -> None:
                     info : str) -> bool:
         return defs[txt](bot, _id) if _id in ids.keys() \
             else send_msg(bot, _id, info, rmvKb())
-
+            
 
     _id = str(msg.chat.id)
     txt : str = msg.text
