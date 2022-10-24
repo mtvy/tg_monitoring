@@ -135,7 +135,7 @@ def rmv_chnl(bot : TeleBot, _id : str) -> None:
    def __rmv_chnl(msg : Message, bot : TeleBot, _id : str, chnls : List) -> None:
       txt : str = msg.text
       chnls = [chnl for chnl in chnls if chnl != txt]
-      if txt.isdigit():
+      if txt.isdigit() or txt[1:].isdigit():
          if chnls:
             if push_msg(f"UPDATE users_tb SET info = ARRAY{chnls} WHERE tid = '{_id}'; SELECT COUNT(1) FROM users_tb"):
                send_msg(bot, _id, f'{txt} удалён.', set_kb(USER_KB))

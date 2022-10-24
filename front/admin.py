@@ -235,7 +235,6 @@ def send_msg_to_chnl(bot : TeleBot, _id : str | int) -> bool:
             send_msg(bot, _id, 'Неправильный формат id.', set_kb(__KB))
     
     wait_msg(bot, _id, __send_msg_to_chnl, 'Введите id канала. (123456789)', rmvKb(), [bot, _id])
-    return True
 #\------------------------------------------------------------------/#
 
 

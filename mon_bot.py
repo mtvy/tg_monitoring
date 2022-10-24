@@ -25,8 +25,7 @@ __ADMIN_FUNC = {'Статус'                     : get_bot_status,
                 'Мониторинг'                 : push_mon,
                 'Конфиг'                     : set_conf}
 __MON_FUNC   = {'Запуск по каналам'          : start_list_mon, 
-                'Остановить мониторинг'      : stop_mon,
-                'Отправка сообщения в канал' : send_msg_to_chnl}
+                'Остановить мониторинг'      : stop_mon}
 
 MON_ADMIN_KB = ['Статус', 'Список', 'Мониторинг', 'Конфиг']
 
@@ -70,6 +69,8 @@ def input_keyboard(msg : Message) -> None:
 
     if mon_status and _id in (it[2] for it in get_db('chnls_tb')):
         send_new_msg(TeleBot(PAY_TOKEN), _id, msg)
+    elif txt == 'Отправка сообщения в канал' and _id in get_ids('admins_tb').keys():
+        send_msg_to_chnl(bot, _id)
     elif txt == 'Мониторинг' and _id in get_ids('admins_tb').keys():
         push_mon(bot, _id, mon_status)
     elif txt in __ADMIN_FUNC.keys():
