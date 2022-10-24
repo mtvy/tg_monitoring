@@ -1,12 +1,4 @@
-#/==================================================================\#
-# user.py                                             (c) Mtvy, 2022 #
-#\==================================================================/#
-#                                                                    #
-# Copyright (c) 2022. Mtvy (Matvei Prudnikov, m.d.prudnik@gmail.com) #
-#                                                                    #
-#\==================================================================/#
-
-#/-----------------------/ installed libs  \------------------------\#
+from datetime import datetime
 from telebot       import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove  as rmvKb
 #------------------------\ project modules /-------------------------#
@@ -152,16 +144,15 @@ def check_sub(bot : TeleBot, _id : str):
          ...
 
 
-   @logging()
-   def __ask_sub(msg : Message, bot : TeleBot, _id : str):
-      wait_msg(bot, _id, __get_sub, U_PROMO_ASK, set_kb(YN_KB), [bot, _id]) \
-         if msg.text == 'Да' else start_user(bot, _id)
+@logging()
+def init_user(bot : TeleBot, _id : str) -> None:
+    txt = ('Вы вошли в аккаунт пользователя. '
+           'Идёт получение документов. '
+           'Подождите окончания загрузки.')
 
-      
-   if is_sub(_id, 'users_tb'):
-      send_msg(bot, _id, 'Ваша подписка действует до 2023-1-1.')
-
-   else:
-      wait_msg(bot, _id, __ask_sub, 'У вас нет подписки. Желаете приобрести?', set_kb(YN_KB), [bot, _id])
-#\------------------------------------------------------------------/#  
-
+    bot.send_message(_id, txt, reply_markup=rmvKey())
+    
+    if not __is_exist(_id):
+        insert_db(...)
+    
+    bot.send_message(_id, '', reply_markup=set_keyboard(USER_KB))

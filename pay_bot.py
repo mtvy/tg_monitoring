@@ -36,12 +36,16 @@ __MON_FUNC   =  {'Аторизация'      : ...,
 #\------------------------------------------------------------------/#
 
 
+admins_IDS = {'281321076'  : None}
+users_IDS = {}
+
 #\------------------------------------------------------------------/#
 @bot.message_handler(commands=['start'])
 @logging()
 def start(msg : Message) -> None:
     """### Bot begin actions """
     _id = str(msg.chat.id)
+
 
     if _id in get_ids('admins_tb').keys():
         init_admin(bot, _id, ADMIN_KB)
@@ -51,6 +55,13 @@ def start(msg : Message) -> None:
     
     else:
         start_user(bot, _id)
+
+    if _id in admins_IDS.keys():
+        init_admin(bot, _id)
+    elif _id not in users_IDS.keys():
+        init_user(bot, _id)
+        #users_IDS = get_ids('users_tb')
+
 #\------------------------------------------------------------------/#
 
 
@@ -72,6 +83,7 @@ def input_keyboard(msg : Message) -> None:
 
     _id = str(msg.chat.id)
     txt : str = msg.text
+
 
     if txt in __USER_FUNC.keys():
         __proc_call(bot, __USER_FUNC, _id, get_ids('users_tb'), txt, U_NO_ACCESS)
@@ -97,6 +109,16 @@ def callback_inline(call):
 
     if data.isdigit():
         send_call_resp(bot, _id, data, msg_id)
+
+
+    if txt in KEYBOARD_FUNC:
+        ...
+    elif txt in ADMIN_FUNC:
+        if _id in admins_IDS.keys():
+            ADMIN_FUNC[txt](bot, _id)
+        else:
+            bot.send_message(_id, 'Нет прав администратора.', 
+                reply_markup=rmvKey())
 
 #\------------------------------------------------------------------/#
 
